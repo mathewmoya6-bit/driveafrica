@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Test</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>MEI Drive Africa - Backend Connection Test</h1>
+    
+    <div id="result" style="padding: 20px; font-family: monospace;">
+        Testing connection to backend...
+    </div>
+    
+    <button onclick="testBackend()">Test Again</button>
+    
+    <script>
+        // Your backend URL - try different options
+        const BACKEND_URLS = [
+            'https://meidriveafrica-backend.onrender.com',
+            'https://www.meidriveafrica.com',
+            'http://localhost:5000'
+        ];
+        
+        let currentUrlIndex = 0;
+        
+        async function testBackend() {
+            const resultDiv = document.getElementById('result');
+            
+            if (currentUrlIndex >= BACKEND_URLS.length) {
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ No backend connection available</h3>
+                    <p>All backend URLs failed.</p>
+                    <hr>
+                    <h4>Using Demo Mode Instead:</h4>
+                    <p>Your admin login will work with demo credentials:</p>
+                    <ul>
+                        <li>Email: admin@meidrive.com</li>
+                        <li>Password: admin123</li>
+                    </ul>
+                    <a href="admin.html">Go to Admin Login →</a>
+                `;
+                return;
+            }
+            
+            const apiUrl = BACKEND_URLS[currentUrlIndex];
+            resultDiv.innerHTML = `<p>Testing: ${apiUrl} ...</p>`;
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                
+                const response = await fetch(`${apiUrl}/api/health`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <h3 style="color: green;">✅ Backend Connected!</h3>
+                        <p><strong>URL:</strong> ${apiUrl}</p>
+                        <p><strong>Status:</strong> ${response.status} OK</p>
+                        <p><strong>Response:</strong> ${JSON.stringify(data, null, 2)}</p>
+                        <hr>
+                        <a href="admin.html" style="font-size: 18px;">Go to Admin Login →</a>
+                    `;
+                    return;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.log(`Failed to connect to ${apiUrl}:`, error.message);
+                currentUrlIndex++;
+                testBackend();
+            }
+        }
+        
+        // Start the test
+        testBackend();
+    </script>
+</body>
+</html>

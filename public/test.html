@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>MEI Drive Africa Test</h1>
+    <div id="result">Loading...</div>
+    
+    <script>
+        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        async function test() {
+            const { data: courses, error } = await supabase
+                .from('courses')
+                .select('id, name, price');
+            
+            if (error) {
+                document.getElementById('result').innerHTML = `Error: ${error.message}`;
+            } else {
+                document.getElementById('result').innerHTML = `
+                    <h2>Courses Found: ${courses.length}</h2>
+                    <ul>
+                        ${courses.map(c => `<li>${c.name} - KES ${c.price}</li>`).join('')}
+                    </ul>
+                `;
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>
