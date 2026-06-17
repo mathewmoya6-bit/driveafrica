@@ -1,89 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>MEI DRIVE AFRICA | Professional Driver Training</title>
-    <meta name="description" content="Professional driver training courses and exam preparation - LEARNER HUB, PSV, EV Driver, Boda Boda Safety, Defensive Driving, School Bus, Refresher Course & Quiz Bank">
-    <meta name="theme-color" content="#0a192f">
-    
-    <!-- ===== FAVICON & LOGO ASSETS ===== -->
-    <!-- Modern browsers: SVG favicon for crisp scaling + PNG fallbacks -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGrSURBVHgB7VdLjsIwDDWNQOyKD5WwQd2wZ8EOsStnUWBYMEhQqX8lKvXpJGrlpZN2Ho6dxBOw2Ww2my/AJNurZdl/jmFd1zZ5yI+ygk+UD8d2yfL5gB8gWdd1+jAMoP0fSpIkhCFx1es5v/+yEOi67hCGIYwgiqKk67oX+AjGcRwf8CfwwjRNs5hhaZpmL8gFEo7j+C+P44CZ/6wsy08ulzAMQwjDMN+CIHhGm9frBZqm2R3H8ZeWZT0mSfJGlmUx+GEYhjeoG0IhHMcJqqpKMQxjuJPlF7Isy5FyHMffwzCMw3EcYBjG/zHGkGVZMAxD0DRtMQzDv+M4fgUhboL2lUIIMRLFccxtNpsN6SNZliVMCBGGIee2YZp1BBsFQRAy9nK5RM/nU3H7y+VyS9M0h8MhYYJhGMLv9wu2+QUi0ul0QlnTNB+M8ZcofRiGlIqi4LIsUz4ej5zf7/cTTiRJQtfrlc+Y+Q+hmWlZlhTOsvnFGIu+70PEfTweVItzHMdxFEUR3e93evr7/ULZ7/dLqZqm4XQ6hWma0vF4/DcAEdlRg+2X/IIAAAAASUVORK5CYII=">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <meta name="description" content="Professional driver training courses and exam preparation." />
+    <meta name="theme-color" content="#0a192f" />
+
+    <!-- Favicon & Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js">
+    </script>
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0a192f 0%, #0d2137 50%, #0a192f 100%); color: #fff; line-height: 1.5; }
-        :root { --primary: #00ff88; --primary-dark: #00cc66; --border: rgba(0,255,136,0.25); --text-muted: #a0b3d9; }
-        
-        .navbar { position: fixed; top: 0; width: 100%; background: rgba(10,25,47,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 1000; padding: 0.8rem 2rem; }
-        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
-        .logo { font-size: 1.3rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .logo-icon { 
-            width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #00cc66); 
-            border-radius: 10px; display: flex; align-items: center; justify-content: center; 
-            font-weight: 800; font-size: 18px; color: #0a192f;
-            box-shadow: 0 4px 12px rgba(0,255,136,0.3);
+        /* ----- RESET & BASE ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a192f 0%, #0d2137 50%, #0a192f 100%);
+            color: #fff;
+            line-height: 1.6;
+        }
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc66;
+            --border: rgba(0, 255, 136, 0.25);
+            --text-muted: #a0b3d9;
+            --card-bg: rgba(13, 33, 55, 0.85);
+        }
+
+        /* ----- NAVBAR ----- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 25, 47, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), #00cc66);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #0a192f;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
             transition: transform 0.2s;
         }
-        .logo:hover .logo-icon { transform: scale(1.05); }
-        .logo span { color: var(--primary); }
-        .logo-full { font-weight: 700; letter-spacing: -0.3px; }
-        .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-        .nav-links button { background: transparent; border: none; color: #a0b3d9; padding: 8px 14px; border-radius: 50px; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .nav-links button:hover { background: rgba(0,255,136,0.1); color: var(--primary); }
-        .btn { padding: 12px 28px; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), #00cc66); color: #0a192f; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,255,136,0.3); }
-        .btn-outline { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
-        .btn-outline:hover { background: rgba(0,255,136,0.1); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
-        .hero { text-align: center; padding: 120px 20px 60px; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero h1 span { color: var(--primary); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
-        .card { background: rgba(13,33,55,0.8); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; transition: 0.2s; cursor: pointer; position: relative; }
-        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
-        .course-price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
-        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1100; }
-        .toast { background: #0d2137; border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; margin-top: 8px; animation: slideIn 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--text-muted); margin-top: 3rem; }
-        .stats-bar { background: rgba(13,33,55,0.6); backdrop-filter: blur(10px); padding: 1.5rem; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1.5rem; text-align: center; border-radius: 20px; margin-bottom: 2rem; }
-        .stat-item h3 { font-size: 2rem; color: var(--primary); }
-        .section-title { text-align: center; font-size: 1.8rem; margin: 2rem 0; }
-        .section-title span { color: var(--primary); }
-        .badge { display: inline-block; background: rgba(0,255,136,0.2); color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; margin-left: 10px; }
-        .mobile-menu { display: none; font-size: 1.5rem; cursor: pointer; color: var(--primary); }
-        .payment-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .payment-card { background: #0d2137; border-radius: 28px; padding: 2rem; max-width: 450px; width: 90%; border: 1px solid var(--primary); text-align: center; }
-        .payment-card .mpesa-logo { font-size: 3rem; color: #00ff88; margin-bottom: 1rem; }
-        .phone-input { display: flex; gap: 10px; align-items: center; background: #0f1a2c; border: 1px solid var(--border); border-radius: 12px; padding: 5px 15px; margin: 15px 0; }
-        .phone-input span { color: var(--primary); font-weight: bold; }
-        .phone-input input { border: none; margin: 0; padding: 12px 0; background: transparent; color: white; width: 100%; font-size: 16px; }
-        
-        /* Loading States */
-        .loading-spinner { display: flex; justify-content: center; align-items: center; height: 200px; }
-        .spinner { width: 50px; height: 50px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .card-loading { opacity: 0.6; pointer-events: none; }
-        .btn-loading { position: relative; color: transparent !important; }
-        .btn-loading::after { content: ""; position: absolute; width: 16px; height: 16px; top: 50%; left: 50%; margin-left: -8px; margin-top: -8px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
-        
-        /* Auth Modal */
+        .logo:hover .logo-icon {
+            transform: scale(1.05);
+        }
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links button {
+            background: transparent;
+            border: none;
+            color: #a0b3d9;
+            padding: 8px 14px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .nav-links button:hover {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #00cc66);
+            color: #0a192f;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
+        }
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+        .btn-outline:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #0a192f;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .mobile-menu {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+        }
+
+        /* ----- HERO ----- */
+        .hero {
+            text-align: center;
+            padding: 130px 20px 60px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .hero h1 span {
+            color: var(--primary);
+        }
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* ----- CONTAINER & CARDS ----- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        .stats-bar {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+        .stat-item h3 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        .stat-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 2rem 0;
+        }
+        .section-title span {
+            color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        .card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            flex: 1;
+            margin-bottom: 0.5rem;
+        }
+        .course-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--primary);
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+            margin-left: 8px;
+        }
+        .card .btn {
+            align-self: flex-start;
+            margin-top: 0.5rem;
+        }
+
+        /* ----- TOAST ----- */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            background: #0d2137;
+            border-left: 4px solid var(--primary);
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-top: 8px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+        }
+
+        /* ----- AUTH MODAL ----- */
         .auth-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.92);
             backdrop-filter: blur(12px);
             z-index: 2000;
             display: flex;
@@ -93,7 +318,10 @@
             visibility: hidden;
             transition: all 0.3s ease;
         }
-        .auth-modal-overlay.active { opacity: 1; visibility: visible; }
+        .auth-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
         .auth-modal {
             background: #0d2137;
             border: 1px solid var(--primary);
@@ -105,10 +333,12 @@
             transform: scale(0.9);
             transition: transform 0.3s ease;
         }
-        .auth-modal-overlay.active .auth-modal { transform: scale(1); }
+        .auth-modal-overlay.active .auth-modal {
+            transform: scale(1);
+        }
         .auth-modal .close-btn {
             position: absolute;
-            top: 1.5rem;
+            top: 1.2rem;
             right: 1.5rem;
             background: transparent;
             border: none;
@@ -116,7 +346,9 @@
             font-size: 1.2rem;
             cursor: pointer;
         }
-        .auth-modal .close-btn:hover { color: var(--primary); }
+        .auth-modal .close-btn:hover {
+            color: var(--primary);
+        }
         .auth-modal h2 {
             text-align: center;
             margin-bottom: 1.5rem;
@@ -125,7 +357,9 @@
             background-clip: text;
             color: transparent;
         }
-        .auth-modal .input-group { margin-bottom: 1rem; }
+        .auth-modal .input-group {
+            margin-bottom: 1rem;
+        }
         .auth-modal .input-group input {
             width: 100%;
             padding: 14px 16px;
@@ -158,9 +392,20 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
         }
-        .auth-modal .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
-        .auth-modal .auth-footer { text-align: center; margin-top: 1.5rem; color: var(--text-muted); }
-        .auth-modal .auth-footer span { color: var(--primary); cursor: pointer; font-weight: 600; }
+        .auth-modal .btn-auth:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .auth-modal .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+        }
+        .auth-modal .auth-footer span {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
         .auth-modal .divider {
             display: flex;
             align-items: center;
@@ -176,403 +421,650 @@
             height: 1px;
             background: var(--border);
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        /* ----- PAYMENT MODAL ----- */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .payment-card {
+            background: #0d2137;
+            border-radius: 28px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            border: 1px solid var(--primary);
+            text-align: center;
+        }
+        .payment-card .mpesa-logo {
+            font-size: 3rem;
+            color: #00ff88;
+            margin-bottom: 1rem;
+        }
+        .phone-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #0f1a2c;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 5px 15px;
+            margin: 15px 0;
+        }
+        .phone-input span {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .phone-input input {
+            border: none;
+            margin: 0;
+            padding: 12px 0;
+            background: transparent;
+            color: white;
+            width: 100%;
+            font-size: 16px;
+        }
+        .phone-input input:focus {
+            outline: none;
+        }
+
+        /* ----- FOOTER ----- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            margin-top: 3rem;
+        }
+
+        /* ----- ANIMATIONS ----- */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .mobile-menu { display: block; }
-            .nav-links { display: none; width: 100%; flex-direction: column; }
-            .nav-links.show { display: flex; }
-            .grid { grid-template-columns: 1fr; }
-            .auth-modal { margin: 1rem; padding: 1.5rem; }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .mobile-menu {
+                display: block;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                padding: 1rem 0;
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .auth-modal {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            .stats-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-<div id="app"></div>
-<div id="toast-container" class="toast-container"></div>
 
-<div id="authModal" class="auth-modal-overlay">
-    <div class="auth-modal">
-        <button class="close-btn" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-        <div id="authModalContent"></div>
+    <!-- APP ROOT -->
+    <div id="app"></div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="auth-modal-overlay">
+        <div class="auth-modal">
+            <button class="close-btn" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
+            <div id="authModalContent"></div>
+        </div>
     </div>
-</div>
 
-<script>
-    // ============================================
-    // SUPABASE CONFIGURATION
-    // ============================================
-    const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
-    const BACKEND_URL = 'https://meidriveafrica-backend.onrender.com';
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
+    <script>
+        // ============================================================
+        //  SUPABASE — SINGLE SOURCE OF TRUTH
+        // ============================================================
+        const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+        const BACKEND_URL = 'https://meidriveafrica-backend.onrender.com';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
+
+        // ============================================================
+        //  GLOBAL STATE
+        // ============================================================
+        let courses = [];
+        let currentUser = null;
+        let userEnrollments = {};
+        let pendingCourse = null;
+        let paymentInterval = null;
+        let enrollingCourseId = null;
+        let processingPayment = false;
+
+        // ============================================================
+        //  HELPERS
+        // ============================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
         }
-    });
-    
-    // ============================================
-    // GLOBAL STATE
-    // ============================================
-    let courses = [];
-    let currentUser = null;
-    let userEnrollments = {};
-    let pendingCourse = null;
-    let paymentInterval = null;
-    let isLoading = true;
-    let authInitialized = false;
-    let enrollingCourseId = null;
-    let processingPayment = false;
-    
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-        toast.innerHTML = `${icon} ${msg}`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 5000);
-    }
-    
-    function escapeHtml(str) { 
-        if (!str) return ''; 
-        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); 
-    }
-    
-    function setButtonLoading(button, loading) {
-        if (!button) return;
-        if (loading) {
-            button.classList.add('btn-loading');
-            button.disabled = true;
-        } else {
-            button.classList.remove('btn-loading');
-            button.disabled = false;
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            toast.innerHTML = `${icon} ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
         }
-    }
-    
-    // ============================================
-    // AUTH MODAL FUNCTIONS
-    // ============================================
-    function showAuthModal(mode = 'login') {
-        const modal = document.getElementById('authModal');
-        const content = document.getElementById('authModalContent');
-        
-        if (mode === 'login') {
-            content.innerHTML = `
-                <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
-                <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
-                    <div class="input-group">
-                        <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
-                    </div>
-                    <button type="submit" class="btn-auth" id="loginBtn">Login</button>
-                </form>
-                <div class="auth-footer">Don't have an account? <span onclick="showAuthModal('signup')">Sign Up</span></div>
-                <div class="divider">or</div>
-                <div class="auth-footer"><span onclick="closeAuthModal()">Continue as Guest</span></div>
-            `;
-        } else {
-            content.innerHTML = `
-                <h2><i class="fas fa-user-plus"></i> Create Account</h2>
-                <form id="signupForm" onsubmit="event.preventDefault(); handleSignup();">
-                    <div class="input-group">
-                        <input type="text" id="signupName" placeholder="Full name" autocomplete="name">
-                    </div>
-                    <div class="input-group">
-                        <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" autocomplete="new-password" required>
-                    </div>
-                    <button type="submit" class="btn-auth" id="signupBtn">Sign Up</button>
-                </form>
-                <div class="auth-footer">Already have an account? <span onclick="showAuthModal('login')">Login</span></div>
-                <div class="divider">or</div>
-                <div class="auth-footer"><span onclick="closeAuthModal()">Continue as Guest</span></div>
-            `;
+
+        function setButtonLoading(button, loading) {
+            if (!button) return;
+            if (loading) {
+                button.classList.add('btn-loading');
+                button.disabled = true;
+            } else {
+                button.classList.remove('btn-loading');
+                button.disabled = false;
+            }
         }
-        modal.classList.add('active');
-    }
-    
-    function closeAuthModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-    
-    async function handleLogin() {
-        const email = document.getElementById('loginEmail')?.value.trim();
-        const password = document.getElementById('loginPassword')?.value;
-        const btn = document.getElementById('loginBtn');
-        if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
-        setButtonLoading(btn, true);
-        try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) throw error;
-            showToast('Login successful!', 'success');
-            closeAuthModal();
-            await initializeApp();
-        } catch (error) { showToast(error.message, 'error'); } 
-        finally { setButtonLoading(btn, false); }
-    }
-    
-    async function handleSignup() {
-        const fullName = document.getElementById('signupName')?.value.trim();
-        const email = document.getElementById('signupEmail')?.value.trim();
-        const password = document.getElementById('signupPassword')?.value;
-        const btn = document.getElementById('signupBtn');
-        if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
-        if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
-        setButtonLoading(btn, true);
-        try {
-            const { error } = await supabase.auth.signUp({ 
-                email, password,
-                options: { data: { full_name: fullName || email.split('@')[0] } }
-            });
-            if (error) throw error;
-            showToast('Account created! Please check your email to verify.', 'success');
-            closeAuthModal();
-        } catch (error) { showToast(error.message, 'error'); } 
-        finally { setButtonLoading(btn, false); }
-    }
-    
-    // ============================================
-    // DATA FETCHING
-    // ============================================
-    async function loadCourses() {
-        try {
-            const { data, error } = await supabase.from('courses').select('*').order('id');
-            if (error) throw error;
-            courses = data || [];
-            renderHome();
-        } catch (error) { console.error('Error loading courses:', error); courses = []; renderHome(); showToast('Error loading courses', 'error'); }
-    }
-    
-    async function loadUserEnrollments() {
-        if (!currentUser) return;
-        try {
-            const { data, error } = await supabase.from('enrollments').select('course_id').eq('user_id', currentUser.id).eq('status', 'active');
-            if (error && error.code !== 'PGRST301') throw error;
-            userEnrollments = {};
-            (data || []).forEach(e => { userEnrollments[e.course_id] = true; });
-        } catch (error) { console.error('Error loading enrollments:', error); userEnrollments = {}; }
-    }
-    
-    async function loadUser() {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
-            if (currentUser) await loadUserEnrollments();
-            else userEnrollments = {};
-            authInitialized = true;
-        } catch (error) { currentUser = null; userEnrollments = {}; authInitialized = true; }
-    }
-    
-    // ============================================
-    // ENROLLMENT & PAYMENT
-    // ============================================
-    async function enrollCourse(courseId) {
-        if (enrollingCourseId === courseId) { showToast('Processing...', 'info'); return; }
-        if (!currentUser) { showToast('Please login to enroll', 'info'); showAuthModal('login'); return; }
-        const course = courses.find(c => c.id === courseId);
-        if (!course) return;
-        if (userEnrollments[courseId]) { showToast(`Already enrolled in ${course.name}!`, 'info'); return; }
-        if (course.price > 0) { pendingCourse = course; showPaymentModal(course); return; }
-        enrollingCourseId = courseId;
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/enroll`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: currentUser.id, courseId: courseId, amount: 0, transactionId: null })
-            });
-            const result = await response.json();
-            if (!response.ok || !result.success) throw new Error(result.error || 'Enrollment failed');
-            userEnrollments[courseId] = true;
-            showToast(`✅ Enrolled in ${course.name}!`, 'success');
-            renderHome();
-        } catch (error) { showToast(error.message, 'error'); } 
-        finally { enrollingCourseId = null; }
-    }
-    
-    async function initiateMpesaPayment(phoneNumber, amount, courseId, userId, email, courseName) {
-        let formattedPhone = phoneNumber.replace(/\D/g, '');
-        if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.slice(1);
-        else if (formattedPhone.startsWith('+254')) formattedPhone = formattedPhone.substring(1);
-        else if (!formattedPhone.startsWith('254')) formattedPhone = '254' + formattedPhone;
-        if (!formattedPhone.startsWith('254') || formattedPhone.length !== 12) return { success: false, error: 'Invalid phone number. Use format: 0712345678' };
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/payments/mpesa/initiate`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber: formattedPhone, amount, courseId, userId, email, accountReference: `C${courseId}`, transactionDesc: `MEI DRIVE - ${courseName}` })
-            });
-            const data = await response.json();
-            if (!response.ok || !data.success) throw new Error(data.error || 'Payment initiation failed');
-            return { success: true, checkoutRequestID: data.checkoutRequestID };
-        } catch (error) { return { success: false, error: error.message }; }
-    }
-    
-    async function checkPaymentStatus(checkoutRequestID) {
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/payments/mpesa/status`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ checkoutRequestID })
-            });
-            return await response.json();
-        } catch (error) { return { success: false, status: 'error', error: error.message }; }
-    }
-    
-    function showPaymentModal(course) {
-        document.getElementById('app').innerHTML = `
-            <div class="payment-modal" id="paymentModal">
-                <div class="payment-card">
-                    <div class="mpesa-logo"><i class="fas fa-money-bill-wave"></i></div>
-                    <h2>M-Pesa Payment</h2>
-                    <p style="margin: 1rem 0;">Course: <strong>${escapeHtml(course.name)}</strong></p>
-                    <p style="font-size: 1.8rem; color: var(--primary);">KES ${course.price.toLocaleString()}</p>
-                    <form id="paymentForm" onsubmit="event.preventDefault(); processPayment();">
-                        <div class="phone-input"><span>+254</span><input type="tel" id="mpesaPhone" placeholder="712345678" autocomplete="off" required></div>
-                        <p style="font-size: 12px; opacity: 0.7;">Enter your M-Pesa number to receive payment prompt</p>
-                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="payButton">Pay Now</button>
+
+        // ============================================================
+        //  AUTH
+        // ============================================================
+        function showAuthModal(mode = 'login') {
+            const modal = document.getElementById('authModal');
+            const content = document.getElementById('authModalContent');
+
+            if (mode === 'login') {
+                content.innerHTML = `
+                    <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+                    <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+                        <div class="input-group">
+                            <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="btn-auth" id="loginBtn">Login</button>
                     </form>
-                    <button class="btn btn-outline" style="width: 100%; margin-top: 0.5rem;" onclick="cancelPayment()">Cancel</button>
+                    <div class="auth-footer">Don't have an account? <span onclick="showAuthModal('signup')">Sign Up</span></div>
+                    <div class="divider">or</div>
+                    <div class="auth-footer"><span onclick="closeAuthModal()">Continue as Guest</span></div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+                    <form id="signupForm" onsubmit="event.preventDefault(); handleSignup();">
+                        <div class="input-group">
+                            <input type="text" id="signupName" placeholder="Full name" autocomplete="name">
+                        </div>
+                        <div class="input-group">
+                            <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="signupPassword" placeholder="Password (min 6)" autocomplete="new-password" required>
+                        </div>
+                        <button type="submit" class="btn-auth" id="signupBtn">Sign Up</button>
+                    </form>
+                    <div class="auth-footer">Already have an account? <span onclick="showAuthModal('login')">Login</span></div>
+                    <div class="divider">or</div>
+                    <div class="auth-footer"><span onclick="closeAuthModal()">Continue as Guest</span></div>
+                `;
+            }
+            modal.classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail')?.value.trim();
+            const password = document.getElementById('loginPassword')?.value;
+            const btn = document.getElementById('loginBtn');
+            if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
+            setButtonLoading(btn, true);
+            try {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                showToast('Login successful!', 'success');
+                closeAuthModal();
+                await initializeApp();
+            } catch (error) { showToast(error.message, 'error'); } finally { setButtonLoading(btn, false); }
+        }
+
+        async function handleSignup() {
+            const fullName = document.getElementById('signupName')?.value.trim();
+            const email = document.getElementById('signupEmail')?.value.trim();
+            const password = document.getElementById('signupPassword')?.value;
+            const btn = document.getElementById('signupBtn');
+            if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
+            if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+            setButtonLoading(btn, true);
+            try {
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { full_name: fullName || email.split('@')[0] } }
+                });
+                if (error) throw error;
+                showToast('Account created! Please verify your email.', 'success');
+                closeAuthModal();
+            } catch (error) { showToast(error.message, 'error'); } finally { setButtonLoading(btn, false); }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            await initializeApp();
+            showToast('Logged out', 'success');
+        }
+
+        // ============================================================
+        //  DATA LOADING — SUPABASE SINGLE SOURCE OF TRUTH
+        // ============================================================
+        async function loadCourses() {
+            try {
+                const { data, error } = await supabase.from('courses').select('*').order('id');
+                if (error) throw error;
+                courses = data || [];
+                renderHome();
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                courses = [];
+                renderHome();
+                showToast('Error loading courses', 'error');
+            }
+        }
+
+        async function loadUserEnrollments() {
+            if (!currentUser) return;
+            try {
+                const { data, error } = await supabase
+                    .from('enrollments')
+                    .select('course_id')
+                    .eq('user_id', currentUser.id)
+                    .eq('status', 'active');
+                if (error && error.code !== 'PGRST301') throw error;
+                userEnrollments = {};
+                (data || []).forEach(e => { userEnrollments[e.course_id] = true; });
+            } catch (error) {
+                console.error('Error loading enrollments:', error);
+                userEnrollments = {};
+            }
+        }
+
+        async function loadUser() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                currentUser = session?.user || null;
+                if (currentUser) await loadUserEnrollments();
+                else userEnrollments = {};
+            } catch (error) {
+                currentUser = null;
+                userEnrollments = {};
+            }
+        }
+
+        // ============================================================
+        //  ENROLLMENT & PAYMENT
+        // ============================================================
+        async function enrollCourse(courseId) {
+            if (enrollingCourseId === courseId) { showToast('Processing...', 'info'); return; }
+            if (!currentUser) { showToast('Please login to enroll', 'info');
+                showAuthModal('login'); return; }
+
+            const course = courses.find(c => c.id === courseId);
+            if (!course) return;
+            if (userEnrollments[courseId]) {
+                showToast(`You're already enrolled in "${course.name}"!`, 'info');
+                return;
+            }
+
+            if (course.price > 0) {
+                pendingCourse = course;
+                showPaymentModal(course);
+                return;
+            }
+
+            enrollingCourseId = courseId;
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/enroll`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.id,
+                        courseId: courseId,
+                        amount: 0,
+                        transactionId: null
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) throw new Error(result.error || 'Enrollment failed');
+                userEnrollments[courseId] = true;
+                showToast(`✅ Enrolled in "${course.name}"!`, 'success');
+                renderHome();
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                enrollingCourseId = null;
+            }
+        }
+
+        function showPaymentModal(course) {
+            document.getElementById('app').innerHTML = `
+                <div class="payment-modal" id="paymentModal">
+                    <div class="payment-card">
+                        <div class="mpesa-logo"><i class="fas fa-money-bill-wave"></i></div>
+                        <h2>M-Pesa Payment</h2>
+                        <p style="margin: 1rem 0;">Course: <strong>${escapeHtml(course.name)}</strong></p>
+                        <p style="font-size: 1.8rem; color: var(--primary);">KES ${course.price.toLocaleString()}</p>
+                        <form id="paymentForm" onsubmit="event.preventDefault(); processPayment();">
+                            <div class="phone-input"><span>+254</span><input type="tel" id="mpesaPhone" placeholder="712345678" autocomplete="off" required></div>
+                            <p style="font-size: 12px; opacity: 0.7;">You'll receive a prompt on your phone</p>
+                            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;" id="payButton">Pay Now</button>
+                        </form>
+                        <button class="btn btn-outline" style="width:100%; margin-top:0.5rem;" onclick="cancelPayment()">Cancel</button>
+                    </div>
                 </div>
-            </div>
-        `;
-    }
-    
-    async function processPayment() {
-        if (processingPayment) { showToast('Payment already in progress...', 'warning'); return; }
-        const phone = document.getElementById('mpesaPhone')?.value.trim();
-        if (!phone) { showToast('Please enter your M-Pesa phone number', 'error'); return; }
-        if (!pendingCourse || !currentUser) return;
-        if (userEnrollments[pendingCourse.id]) { showToast(`Already enrolled in ${pendingCourse.name}!`, 'info'); pendingCourse = null; loadCourses(); return; }
-        processingPayment = true;
-        const payButton = document.getElementById('payButton');
-        setButtonLoading(payButton, true);
-        showToast(`Initiating payment of KES ${pendingCourse.price}...`, 'info');
-        try {
-            const result = await initiateMpesaPayment(phone, pendingCourse.price, pendingCourse.id, currentUser.id, currentUser.email, pendingCourse.name);
-            if (result.success) {
+            `;
+        }
+
+        async function processPayment() {
+            if (processingPayment) { showToast('Payment already in progress...', 'warning'); return; }
+            const phone = document.getElementById('mpesaPhone')?.value.trim();
+            if (!phone) { showToast('Please enter your M-Pesa phone number', 'error'); return; }
+            if (!pendingCourse || !currentUser) return;
+            if (userEnrollments[pendingCourse.id]) {
+                showToast(`Already enrolled in "${pendingCourse.name}"!`, 'info');
+                pendingCourse = null;
+                loadCourses();
+                return;
+            }
+
+            processingPayment = true;
+            const payButton = document.getElementById('payButton');
+            setButtonLoading(payButton, true);
+            showToast(`Initiating KES ${pendingCourse.price} payment...`, 'info');
+
+            try {
+                let formattedPhone = phone.replace(/\D/g, '');
+                if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.slice(1);
+                else if (formattedPhone.startsWith('+254')) formattedPhone = formattedPhone.substring(1);
+                else if (!formattedPhone.startsWith('254')) formattedPhone = '254' + formattedPhone;
+                if (formattedPhone.length !== 12) throw new Error('Phone must be 10 digits (e.g., 712345678)');
+
+                const response = await fetch(`${BACKEND_URL}/api/payments/mpesa/initiate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phoneNumber: formattedPhone,
+                        amount: pendingCourse.price,
+                        courseId: pendingCourse.id,
+                        userId: currentUser.id,
+                        email: currentUser.email,
+                        accountReference: `C${pendingCourse.id}`,
+                        transactionDesc: `MEI DRIVE - ${pendingCourse.name}`
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.error || 'Payment initiation failed');
+
                 showToast('STK Push sent! Check your phone.', 'success');
-                let attempts = 0, paymentCompleted = false;
+
+                let attempts = 0,
+                    completed = false;
                 paymentInterval = setInterval(async () => {
-                    if (paymentCompleted) return;
+                    if (completed) return;
                     attempts++;
                     try {
-                        const status = await checkPaymentStatus(result.checkoutRequestID);
+                        const statusResp = await fetch(`${BACKEND_URL}/api/payments/mpesa/status`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ checkoutRequestID: data.checkoutRequestID })
+                        });
+                        const status = await statusResp.json();
+
                         if (status.success && status.status === 'completed') {
-                            clearInterval(paymentInterval); paymentCompleted = true;
-                            const enrollResponse = await fetch(`${BACKEND_URL}/api/enroll`, {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userId: currentUser.id, courseId: pendingCourse.id, amount: pendingCourse.price, transactionId: status.transaction_id })
+                            clearInterval(paymentInterval);
+                            completed = true;
+
+                            const enrollResp = await fetch(`${BACKEND_URL}/api/enroll`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    userId: currentUser.id,
+                                    courseId: pendingCourse.id,
+                                    amount: pendingCourse.price,
+                                    transactionId: status.transaction_id
+                                })
                             });
-                            const enrollResult = await enrollResponse.json();
+                            const enrollResult = await enrollResp.json();
                             if (enrollResult.success) {
                                 userEnrollments[pendingCourse.id] = true;
-                                showToast(`✅ Payment successful! Enrolled in ${pendingCourse.name}`, 'success');
-                                pendingCourse = null; processingPayment = false; loadCourses();
-                            } else { showToast('Payment confirmed but enrollment failed. Contact support.', 'error'); processingPayment = false; }
-                        } else if (status.status === 'failed') { clearInterval(paymentInterval); showToast('Payment failed. Please try again.', 'error'); setButtonLoading(payButton, false); processingPayment = false; }
-                        else if (attempts > 30) { clearInterval(paymentInterval); showToast('Payment confirmation timeout. Please check transaction status.', 'warning'); setButtonLoading(payButton, false); processingPayment = false; }
+                                showToast(`✅ Payment successful! Enrolled in "${pendingCourse.name}"`, 'success');
+                                pendingCourse = null;
+                                processingPayment = false;
+                                loadCourses();
+                            } else {
+                                showToast('Payment confirmed but enrollment failed. Contact support.', 'error');
+                                processingPayment = false;
+                            }
+                        } else if (status.status === 'failed') {
+                            clearInterval(paymentInterval);
+                            showToast('Payment failed. Please try again.', 'error');
+                            setButtonLoading(payButton, false);
+                            processingPayment = false;
+                        } else if (attempts > 30) {
+                            clearInterval(paymentInterval);
+                            showToast('Payment confirmation timeout. Check transaction status.', 'warning');
+                            setButtonLoading(payButton, false);
+                            processingPayment = false;
+                        }
                     } catch (err) { console.error(err); }
                 }, 3000);
-                setTimeout(() => { if (paymentInterval && !paymentCompleted) { clearInterval(paymentInterval); processingPayment = false; setButtonLoading(payButton, false); } }, 95000);
-            } else { throw new Error(result.error); }
-        } catch (error) { showToast(error.message, 'error'); setButtonLoading(payButton, false); processingPayment = false; }
-    }
-    
-    function cancelPayment() { if (paymentInterval) clearInterval(paymentInterval); pendingCourse = null; processingPayment = false; loadCourses(); }
-    
-    function updateAuthUI() {
-        const container = document.getElementById('authButtons');
-        if (!container) return;
-        if (currentUser) {
-            container.innerHTML = `<span style="color: var(--primary);">👋 ${escapeHtml(currentUser.email?.split('@')[0])}</span>
-                <button onclick="logout()" class="btn-outline" style="padding: 6px 16px;">Logout</button>
-                <a href="admin.html"><button class="btn-primary" style="padding: 6px 16px;"><i class="fas fa-crown"></i> Admin</button></a>`;
-        } else {
-            container.innerHTML = `<button onclick="showAuthModal('login')" class="btn-outline">Login</button><button onclick="showAuthModal('signup')" class="btn-primary">Sign Up</button>`;
+
+                setTimeout(() => {
+                    if (paymentInterval && !completed) {
+                        clearInterval(paymentInterval);
+                        processingPayment = false;
+                        setButtonLoading(payButton, false);
+                    }
+                }, 95000);
+
+            } catch (error) {
+                showToast(error.message, 'error');
+                setButtonLoading(payButton, false);
+                processingPayment = false;
+            }
         }
-    }
-    
-    async function logout() { await supabase.auth.signOut(); await initializeApp(); showToast('Logged out', 'success'); }
-    function viewCourse(courseId) { window.location.href = `course.html?id=${courseId}`; }
-    
-    function renderHome() {
-        const totalModules = courses.reduce((sum, c) => sum + (c.lessons_count || 0), 0);
-        const freeCourses = courses.filter(c => c.price === 0).length;
-        document.getElementById('app').innerHTML = `
-            <nav class="navbar">
-                <div class="nav-container">
-                    <div class="logo" onclick="location.reload()"><div class="logo-icon">M</div><span class="logo-full">MEI DRIVE <span>AFRICA</span></span></div>
-                    <div class="mobile-menu" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></div>
-                    <div class="nav-links" id="navLinks">
-                        <button onclick="loadCourses()"><i class="fas fa-home"></i> Home</button>
-                        <div id="authButtons"></div>
+
+        function cancelPayment() {
+            if (paymentInterval) clearInterval(paymentInterval);
+            pendingCourse = null;
+            processingPayment = false;
+            loadCourses();
+        }
+
+        // ============================================================
+        //  RENDER UI
+        // ============================================================
+        function renderHome() {
+            const freeCount = courses.filter(c => c.price === 0).length;
+            const totalModules = courses.reduce((sum, c) => sum + (c.lessons_count || 0), 0);
+
+            document.getElementById('app').innerHTML = `
+                <nav class="navbar">
+                    <div class="nav-container">
+                        <div class="logo" onclick="location.reload()">
+                            <div class="logo-icon">M</div>
+                            <span class="logo-full">MEI DRIVE <span>AFRICA</span></span>
+                        </div>
+                        <div class="mobile-menu" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></div>
+                        <div class="nav-links" id="navLinks">
+                            <button onclick="loadCourses()"><i class="fas fa-home"></i> Home</button>
+                            <div id="authButtons"></div>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="hero">
+                    <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
+                    <p>Professional driver training with ${courses.length} courses and 1000+ exam questions.</p>
+                    <button class="btn btn-primary" onclick="document.getElementById('courses-section').scrollIntoView({behavior:'smooth'})">🚀 Explore Courses</button>
+                </div>
+
+                <div class="container">
+                    <div class="stats-bar">
+                        <div class="stat-item"><h3>${courses.length}</h3><p>Professional Courses</p></div>
+                        <div class="stat-item"><h3>${freeCount}</h3><p>Free Courses</p></div>
+                        <div class="stat-item"><h3>${totalModules}</h3><p>Training Modules</p></div>
+                        <div class="stat-item"><h3>1000+</h3><p>Quiz Questions</p></div>
+                    </div>
+
+                    <h2 class="section-title" id="courses-section">Our <span>Professional Courses</span></h2>
+
+                    <div class="grid">
+                        ${courses.map(c => `
+                            <div class="card" onclick="viewCourse(${c.id})">
+                                <i class="fas ${c.icon || 'fa-book'}"></i>
+                                <h3>${escapeHtml(c.name)}${userEnrollments[c.id] ? '<span class="badge">Enrolled</span>' : ''}</h3>
+                                <p>${escapeHtml((c.description || '').substring(0, 120))}${(c.description || '').length > 120 ? '...' : ''}</p>
+                                <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); enrollCourse(${c.id})" ${enrollingCourseId === c.id ? 'disabled' : ''}>
+                                    ${enrollingCourseId === c.id ? '<i class="fas fa-spinner fa-spin"></i> Processing...' : (userEnrollments[c.id] ? '<i class="fas fa-play"></i> Continue' : '<i class="fas fa-graduation-cap"></i> Enroll Now')}
+                                </button>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-            </nav>
-            <div class="hero">
-                <h1>Practice Daily.<br><span>Revise Smarter. Pass with Confidence.</span></h1>
-                <p>Professional driver training with ${courses.length} comprehensive courses and 1000+ exam questions.</p>
-                <button class="btn btn-primary" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">🚀 Explore Courses</button>
-            </div>
-            <div class="container">
-                <div class="stats-bar">
-                    <div class="stat-item"><h3>${courses.length}</h3><p>Professional Courses</p></div>
-                    <div class="stat-item"><h3>${freeCourses}</h3><p>Free Courses</p></div>
-                    <div class="stat-item"><h3>${totalModules}</h3><p>Training Modules</p></div>
-                    <div class="stat-item"><h3>1000+</h3><p>Quiz Questions</p></div>
-                </div>
-                <h2 class="section-title" id="courses">Our <span>Professional Courses</span></h2>
-                <div class="grid">
-                    ${courses.map(c => `
-                        <div class="card" onclick="viewCourse(${c.id})">
-                            <i class="fas ${c.icon || 'fa-book'}" style="font-size:2rem;color:${c.color || '#00ff88'}"></i>
-                            <h3>${escapeHtml(c.name)}${userEnrollments[c.id] ? '<span class="badge">Enrolled</span>' : ''}</h3>
-                            <p>${escapeHtml(c.description?.substring(0, 120))}...</p>
-                            <div class="course-price">${c.price === 0 ? 'FREE' : `KES ${c.price.toLocaleString()}`}</div>
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); enrollCourse(${c.id})" ${enrollingCourseId === c.id ? 'disabled' : ''}>
-                                ${enrollingCourseId === c.id ? '<i class="fas fa-spinner fa-spin"></i> Processing...' : (userEnrollments[c.id] ? '<i class="fas fa-play"></i> Continue' : '<i class="fas fa-graduation-cap"></i> Enroll Now')}
-                            </button>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            <footer>© 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive</footer>
-        `;
-        updateAuthUI();
-    }
-    
-    function toggleMobileMenu() { document.getElementById('navLinks')?.classList.toggle('show'); }
-    
-    async function initializeApp() {
-        isLoading = true;
-        await loadUser();
-        await loadCourses();
-        isLoading = false;
-    }
-    
-    // Expose globals
-    window.enrollCourse = enrollCourse;
-    window.processPayment = processPayment;
-    window.cancelPayment = cancelPayment;
-    window.toggleMobileMenu = toggleMobileMenu;
-    window.showAuthModal = showAuthModal;
-    window.closeAuthModal = closeAuthModal;
-    window.handleLogin = handleLogin;
-    window.handleSignup = handleSignup;
-    window.logout = logout;
-    window.viewCourse = viewCourse;
-    window.loadCourses = loadCourses;
-    
-    initializeApp();
-</script>
+
+                <footer>© 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive</footer>
+            `;
+
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            const container = document.getElementById('authButtons');
+            if (!container) return;
+            if (currentUser) {
+                container.innerHTML = `
+                    <span style="color: var(--primary);">👋 ${escapeHtml(currentUser.email?.split('@')[0])}</span>
+                    <button onclick="logout()" class="btn-outline" style="padding: 6px 16px;">Logout</button>
+                    <a href="admin.html"><button class="btn-primary" style="padding: 6px 16px;"><i class="fas fa-crown"></i> Admin</button></a>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="showAuthModal('login')" class="btn-outline">Login</button>
+                    <button onclick="showAuthModal('signup')" class="btn-primary">Sign Up</button>
+                `;
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navLinks')?.classList.toggle('show');
+        }
+
+        function viewCourse(courseId) {
+            window.location.href = `course.html?id=${courseId}`;
+        }
+
+        // ============================================================
+        //  REALTIME SUBSCRIPTIONS — SINGLE SOURCE OF TRUTH
+        // ============================================================
+        function subscribeRealtime() {
+            // Courses channel — any change updates the UI instantly
+            const coursesChannel = supabase
+                .channel('public-courses-changes')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'courses'
+                }, async () => {
+                    await loadCourses();
+                })
+                .subscribe();
+
+            // Enrollments channel — keep user enrollment status fresh
+            const enrollmentsChannel = supabase
+                .channel('public-enrollments-changes')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'enrollments'
+                }, async () => {
+                    if (currentUser) {
+                        await loadUserEnrollments();
+                        renderHome();
+                    }
+                })
+                .subscribe();
+
+            window._channels = [coursesChannel, enrollmentsChannel];
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        async function initializeApp() {
+            await loadUser();
+            await loadCourses();
+            subscribeRealtime();
+        }
+
+        // Expose globals for inline onclick handlers
+        window.enrollCourse = enrollCourse;
+        window.processPayment = processPayment;
+        window.cancelPayment = cancelPayment;
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.showAuthModal = showAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.handleLogin = handleLogin;
+        window.handleSignup = handleSignup;
+        window.logout = logout;
+        window.viewCourse = viewCourse;
+        window.loadCourses = loadCourses;
+
+        // Start the app
+        initializeApp();
+    </script>
 </body>
 </html>
