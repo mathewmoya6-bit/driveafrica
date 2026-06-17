@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | MEI DRIVE AFRICA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a192f; color: #fff; }
+        :root { --primary: #00ff88; --border: rgba(0,255,136,0.25); --card-bg: #0d2137; --danger: #ff4757; --warning: #ffa502; }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(10,25,47,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 2rem; z-index: 1000; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-size: 1.3rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), #00cc66); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 90px 20px 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; text-align: center; cursor: pointer; transition: 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .stat-number { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .tab:hover, .tab.active { background: var(--primary); color: #0a192f; border-color: var(--primary); }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card h2 { color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--primary); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; cursor: pointer; border: none; margin: 0 2px; }
+        .btn-warning { background: var(--warning); color: #0a192f; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #00cc66); color: #0a192f; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(12px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--primary); border-radius: 24px; padding: 2rem; width: 90%; max-width: 500px; }
+        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin: 10px 0; background: #0f1a2c; border: 1px solid var(--border); border-radius: 12px; color: white; }
+        .search-box { background: #0f1a2c; border: 1px solid var(--border); border-radius: 12px; padding: 10px 15px; width: 100%; max-width: 300px; color: white; margin-bottom: 1rem; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--card-bg); border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 12px; z-index: 1100; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } table { font-size: 12px; } }
+    </style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast-container"></div>
+
+<script>
+    const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
+    const BACKEND_URL = 'https://meidriveafrica-backend.onrender.com';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUser = null;
+    let isAdmin = false;
+    let currentTab = 'dashboard';
+    let courses = [];
+    let users = [];
+    let enrollments = [];
+    let quizQuestions = [];
+    
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `${type === 'success' ? '✅' : '❌'} ${msg}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+    
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    
+    async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = 'admin-login.html'; return; }
+        currentUser = session.user;
+        
+        const { data: profile } = await supabase.from('user_profiles').select('is_admin').eq('id', currentUser.id).maybeSingle();
+        if (!profile?.is_admin && currentUser.email !== 'admin@meidriveafrica.com') {
+            await supabase.auth.signOut();
+            window.location.href = 'admin-login.html';
+            return;
+        }
+        isAdmin = true;
+        await loadData();
+        renderDashboard();
+    }
+    
+    async function loadData() {
+        [courses, users, enrollments, quizQuestions] = await Promise.all([
+            supabase.from('courses').select('*').order('id'),
+            supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
+            supabase.from('enrollments').select('*, user_profiles(email), courses(name)').order('enrolled_at', { ascending: false }),
+            supabase.from('quiz_questions').select('*')
+        ]);
+        courses = courses.data || [];
+        users = users.data || [];
+        enrollments = enrollments.data || [];
+        quizQuestions = quizQuestions.data || [];
+    }
+    
+    async function renderDashboard() {
+        const totalRevenue = enrollments.reduce((sum, e) => sum + (e.amount_paid || 0), 0);
+        document.getElementById('app').innerHTML = `
+            <div class="navbar">
+                <div class="logo">MEI DRIVE ADMIN</div>
+                <div><span style="color:var(--primary);">${escapeHtml(currentUser.email)}</span>
+                <button onclick="logout()" style="background:transparent; border:1px solid var(--border); color:white; padding:8px 16px; border-radius:8px; margin-left:10px; cursor:pointer;">Logout</button></div>
+            </div>
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="setTab('users')"><div class="stat-number">${users.length}</div><div>👥 Users</div></div>
+                    <div class="stat-card" onclick="setTab('courses')"><div class="stat-number">${courses.length}</div><div>📚 Courses</div></div>
+                    <div class="stat-card" onclick="setTab('enrollments')"><div class="stat-number">${enrollments.length}</div><div>📋 Enrollments</div></div>
+                    <div class="stat-card" onclick="setTab('payments')"><div class="stat-number">KES ${totalRevenue.toLocaleString()}</div><div>💰 Revenue</div></div>
+                    <div class="stat-card" onclick="setTab('quiz')"><div class="stat-number">${quizQuestions.length}</div><div>❓ Quiz</div></div>
+                </div>
+                <div class="tabs">
+                    <div class="tab ${currentTab === 'dashboard' ? 'active' : ''}" onclick="setTab('dashboard')">📊 Dashboard</div>
+                    <div class="tab ${currentTab === 'courses' ? 'active' : ''}" onclick="setTab('courses')">📚 Courses</div>
+                    <div class="tab ${currentTab === 'users' ? 'active' : ''}" onclick="setTab('users')">👥 Users</div>
+                    <div class="tab ${currentTab === 'enrollments' ? 'active' : ''}" onclick="setTab('enrollments')">📋 Enrollments</div>
+                    <div class="tab ${currentTab === 'payments' ? 'active' : ''}" onclick="setTab('payments')">💰 Payments</div>
+                    <div class="tab ${currentTab === 'quiz' ? 'active' : ''}" onclick="setTab('quiz')">❓ Quiz</div>
+                </div>
+                <div id="tabContent"></div>
+            </div>
+        `;
+        await loadTabContent();
+    }
+    
+    async function loadTabContent() {
+        const container = document.getElementById('tabContent');
+        if (currentTab === 'dashboard') {
+            container.innerHTML = `<div class="card"><h2><i class="fas fa-chart-line"></i> Recent Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.slice(0, 10).map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${e.amount_paid > 0 ? `KES ${e.amount_paid}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleDateString()}</td></tr>`).join('') || '<tr><td colspan="4">No enrollments</td></tr>'}</tbody></table></div></div>`;
+        }
+        else if (currentTab === 'courses') {
+            container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2><i class="fas fa-book"></i> Manage Courses</h2><button class="btn-sm btn-primary" onclick="showAddCourseModal()">+ Add Course</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Duration</th><th>Actions</th></tr></thead><tbody>${courses.map(c => `<tr><td>${c.id}</td><td>${escapeHtml(c.name)}</td><td>KES ${c.price?.toLocaleString() || 0}</td><td>${escapeHtml(c.duration || '-')}</td><td><button class="btn-sm btn-warning" onclick="editCourse(${c.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteCourse(${c.id})">Del</button></td></tr>`).join('') || '<tr><td colspan="5">No courses</td></tr>'}</tbody></table></div></div>`;
+        }
+        else if (currentTab === 'users') {
+            container.innerHTML = `<div class="card"><h2><i class="fas fa-users"></i> Manage Users</h2><input type="text" class="search-box" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()"><div style="overflow-x:auto;"><table id="usersTable"><thead><tr><th>Email</th><th>Name</th><th>Admin</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u => `<tr data-email="${escapeHtml(u.email).toLowerCase()}"><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.full_name || '-')}</td><td>${u.is_admin ? '✅ Admin' : '👤 User'}</td><td>${new Date(u.created_at).toLocaleDateString()}</td><td><button class="btn-sm btn-warning" onclick="toggleAdmin('${u.id}', ${!u.is_admin})">${u.is_admin ? 'Remove Admin' : 'Make Admin'}</button></td></tr>`).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></table></div></div>`;
+        }
+        else if (currentTab === 'enrollments') {
+            container.innerHTML = `<div class="card"><h2><i class="fas fa-list"></i> All Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${e.amount_paid > 0 ? `KES ${e.amount_paid}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="4">No enrollments</td></tr>'}</tbody></table></div></div>`;
+        }
+        else if (currentTab === 'payments') {
+            const paid = enrollments.filter(e => e.amount_paid > 0);
+            const total = paid.reduce((s, e) => s + e.amount_paid, 0);
+            container.innerHTML = `<div class="card"><h2><i class="fas fa-credit-card"></i> Payment Summary</h2><div class="stats-grid" style="margin-bottom:1rem;"><div class="stat-card"><div class="stat-number">${paid.length}</div><div>Paid Enrollments</div></div><div class="stat-card"><div class="stat-number">KES ${total.toLocaleString()}</div><div>Total Revenue</div></div></div><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Transaction ID</th><th>Date</th></tr></thead><tbody>${paid.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>KES ${e.amount_paid}</td><td><code>${escapeHtml(e.transaction_id || '-')}</code></td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="5">No payments</td></tr>'}</tbody></table></div></div>`;
+        }
+        else if (currentTab === 'quiz') {
+            container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2><i class="fas fa-question-circle"></i> Quiz Questions</h2><button class="btn-sm btn-primary" onclick="showAddQuestionModal()">+ Add Question</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Category</th><th>Question</th><th>Actions</th></tr></thead><tbody>${quizQuestions.map(q => `<tr><td>${q.id}</td><td>${escapeHtml(q.category || 'General')}</td><td>${escapeHtml(q.question?.substring(0, 60))}...</td><td><button class="btn-sm btn-warning" onclick="editQuestion(${q.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteQuestion(${q.id})">Del</button></td></tr>`).join('') || '<tr><td colspan="4">No questions</td></tr>'}</tbody></table></div></div>`;
+        }
+    }
+    
+    window.setTab = (tab) => { currentTab = tab; renderDashboard(); };
+    window.filterUsers = () => { const s = document.getElementById('userSearch')?.value.toLowerCase(); document.querySelectorAll('#usersTable tbody tr').forEach(r => r.style.display = r.dataset.email?.includes(s || '') ? '' : 'none'); };
+    
+    window.showAddCourseModal = () => { document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Add Course</h2><input type="text" id="courseName" placeholder="Name"><input type="number" id="coursePrice" placeholder="Price"><input type="text" id="courseDuration" placeholder="Duration"><input type="text" id="courseIcon" placeholder="Icon" value="fa-book"><button class="btn-primary" onclick="saveCourse()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`); };
+    window.saveCourse = async () => { const { data: maxId } = await supabase.from('courses').select('id').order('id', { ascending: false }).limit(1); const newId = (maxId?.[0]?.id || 0) + 1; await supabase.from('courses').insert({ id: newId, name: document.getElementById('courseName').value, price: parseInt(document.getElementById('coursePrice').value), duration: document.getElementById('courseDuration').value, icon: document.getElementById('courseIcon').value }); showToast('Course added', 'success'); closeModal(); await loadData(); renderDashboard(); };
+    window.editCourse = async (id) => { const c = courses.find(c => c.id === id); document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Edit Course</h2><input type="text" id="courseName" value="${escapeHtml(c.name)}"><input type="number" id="coursePrice" value="${c.price}"><input type="text" id="courseDuration" value="${escapeHtml(c.duration || '')}"><input type="text" id="courseIcon" value="${escapeHtml(c.icon || 'fa-book')}"><button class="btn-primary" onclick="updateCourse(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`); };
+    window.updateCourse = async (id) => { await supabase.from('courses').update({ name: document.getElementById('courseName').value, price: parseInt(document.getElementById('coursePrice').value), duration: document.getElementById('courseDuration').value, icon: document.getElementById('courseIcon').value }).eq('id', id); showToast('Course updated', 'success'); closeModal(); await loadData(); renderDashboard(); };
+    window.deleteCourse = async (id) => { if (confirm('Delete?')) { await supabase.from('courses').delete().eq('id', id); showToast('Deleted', 'success'); await loadData(); renderDashboard(); } };
+    window.toggleAdmin = async (uid, make) => { await supabase.from('user_profiles').update({ is_admin: make }).eq('id', uid); showToast(`User ${make ? 'is now admin' : 'admin removed'}`, 'success'); await loadData(); renderDashboard(); };
+    window.showAddQuestionModal = () => { document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Add Question</h2><select id="qCategory"><option>Road Signs</option><option>Highway Code</option><option>Defensive Driving</option><option>Traffic Rules</option></select><textarea id="qText" placeholder="Question" rows="2"></textarea><input type="text" id="optA" placeholder="Option A"><input type="text" id="optB" placeholder="Option B"><input type="text" id="optC" placeholder="Option C"><input type="text" id="optD" placeholder="Option D"><select id="correctOpt"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select><textarea id="qExplanation" placeholder="Explanation" rows="2"></textarea><button class="btn-primary" onclick="saveQuestion()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`); };
+    window.saveQuestion = async () => { await supabase.from('quiz_questions').insert({ category: document.getElementById('qCategory').value, question: document.getElementById('qText').value, option_a: document.getElementById('optA').value, option_b: document.getElementById('optB').value, option_c: document.getElementById('optC').value, option_d: document.getElementById('optD').value, correct_option: parseInt(document.getElementById('correctOpt').value), explanation: document.getElementById('qExplanation').value }); showToast('Question added', 'success'); closeModal(); await loadData(); renderDashboard(); };
+    window.editQuestion = async (id) => { const q = quizQuestions.find(q => q.id === id); document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Edit Question</h2><select id="qCategory">${['Road Signs','Highway Code','Defensive Driving','Traffic Rules'].map(c => `<option ${q.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select><textarea id="qText" rows="2">${escapeHtml(q.question)}</textarea><input type="text" id="optA" value="${escapeHtml(q.option_a)}"><input type="text" id="optB" value="${escapeHtml(q.option_b)}"><input type="text" id="optC" value="${escapeHtml(q.option_c)}"><input type="text" id="optD" value="${escapeHtml(q.option_d)}"><select id="correctOpt"><option value="0" ${q.correct_option === 0 ? 'selected' : ''}>A</option><option value="1" ${q.correct_option === 1 ? 'selected' : ''}>B</option><option value="2" ${q.correct_option === 2 ? 'selected' : ''}>C</option><option value="3" ${q.correct_option === 3 ? 'selected' : ''}>D</option></select><textarea id="qExplanation" rows="2">${escapeHtml(q.explanation || '')}</textarea><button class="btn-primary" onclick="updateQuestion(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`); };
+    window.updateQuestion = async (id) => { await supabase.from('quiz_questions').update({ category: document.getElementById('qCategory').value, question: document.getElementById('qText').value, option_a: document.getElementById('optA').value, option_b: document.getElementById('optB').value, option_c: document.getElementById('optC').value, option_d: document.getElementById('optD').value, correct_option: parseInt(document.getElementById('correctOpt').value), explanation: document.getElementById('qExplanation').value }).eq('id', id); showToast('Question updated', 'success'); closeModal(); await loadData(); renderDashboard(); };
+    window.deleteQuestion = async (id) => { if (confirm('Delete?')) { await supabase.from('quiz_questions').delete().eq('id', id); showToast('Deleted', 'success'); await loadData(); renderDashboard(); } };
+    window.closeModal = () => { document.querySelectorAll('.modal').forEach(m => m.remove()); };
+    window.logout = async () => { await supabase.auth.signOut(); window.location.href = 'admin-login.html'; };
+    
+    init();
+</script>
+</body>
+</html>

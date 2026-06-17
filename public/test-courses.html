@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Courses</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #0A234F; color: white; }
+        .course { background: #041B3D; padding: 15px; margin: 10px 0; border-radius: 10px; border-left: 4px solid #00FF88; }
+        .success { color: #00FF88; }
+        .error { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>MEI Drive Africa - Database Test</h1>
+    <div id="result">Testing connection...</div>
+    <div id="courses"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            const coursesDiv = document.getElementById('courses');
+            
+            try {
+                // Test 1: Fetch courses
+                const { data: courses, error } = await supabase
+                    .from('courses')
+                    .select('*')
+                    .order('id');
+                
+                if (error) throw error;
+                
+                resultDiv.innerHTML = `<p class="success">✅ Connected to Supabase!</p>`;
+                resultDiv.innerHTML += `<p>Found <strong>${courses.length}</strong> courses in database.</p>`;
+                
+                if (courses && courses.length > 0) {
+                    coursesDiv.innerHTML = '<h2>📚 Courses in Database:</h2>';
+                    courses.forEach(course => {
+                        coursesDiv.innerHTML += `
+                            <div class="course">
+                                <strong>${course.icon || '📘'} ${course.name}</strong><br>
+                                Price: ${course.type === 'free' ? 'FREE' : `KES ${course.price?.toLocaleString()}`}<br>
+                                Duration: ${course.duration || 'N/A'}<br>
+                                Level: ${course.level || 'N/A'}
+                            </div>
+                        `;
+                    });
+                } else {
+                    coursesDiv.innerHTML = '<p class="error">⚠️ No courses found in database. Run the SQL setup script.</p>';
+                }
+                
+                // Test 2: Fetch course units
+                const { data: units, error: unitsError } = await supabase
+                    .from('course_units')
+                    .select('*')
+                    .eq('course_id', 1)
+                    .limit(5);
+                
+                if (!unitsError && units && units.length > 0) {
+                    resultDiv.innerHTML += `<p class="success">✅ Found ${units.length} units for Learner Hub course.</p>`;
+                } else {
+                    resultDiv.innerHTML += `<p class="error">⚠️ No units found for Learner Hub course.</p>`;
+                }
+                
+                // Test 3: Fetch quiz questions
+                const { data: quizzes, error: quizError } = await supabase
+                    .from('quiz_questions')
+                    .select('*')
+                    .limit(5);
+                
+                if (!quizError && quizzes && quizzes.length > 0) {
+                    resultDiv.innerHTML += `<p class="success">✅ Found ${quizzes.length}+ quiz questions in database.</p>`;
+                } else {
+                    resultDiv.innerHTML += `<p class="error">⚠️ No quiz questions found.</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Connection failed: ${error.message}</p>`;
+                console.error('Supabase error:', error);
+            }
+        }
+        
+        testConnection();
+    </script>
+</body>
+</html>

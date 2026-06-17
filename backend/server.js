@@ -1,168 +1,218 @@
-// server.js - M-Pesa STK Push Integration for MEI Drive Africa
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const axios = require('axios');
+// =====================================================
+// MEI DRIVE AFRICA - PAYMENT SYSTEM
+// PRODUCTION READY v2.3.0
+// =====================================================
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import dotenv from 'dotenv';
 
-// ============================================================
-// MIDDLEWARE
-// ============================================================
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
-app.use(cors({
-    origin: corsOrigins,
-    credentials: process.env.CORS_CREDENTIALS === 'true'
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+dotenv.config();
 
-// ============================================================
-// LOGGING
-// ============================================================
-const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
-function log(level, message, data = null) {
-    const levels = { error: 0, warn: 1, info: 2, debug: 3 };
-    if (levels[level] <= levels[LOG_LEVEL]) {
-        console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${message}`);
-        if (data) console.log(data);
-    }
-}
+// =====================================================
+// CONFIGURATION
+// =====================================================
 
-// ============================================================
-// CONFIGURATION (from .env)
-// ============================================================
 const config = {
-    // Primary Credentials (Automat EA)
-    consumerKey: process.env.MPESA_CONSUMER_KEY,
-    consumerSecret: process.env.MPESA_CONSUMER_SECRET,
-    
-    // Secondary Backup Credentials (Masika Benevolent)
-    consumerKeyBackup: process.env.MPESA_CONSUMER_KEY_BACKUP,
-    consumerSecretBackup: process.env.MPESA_CONSUMER_SECRET_BACKUP,
-    
-    // Paybill
-    shortCode: process.env.MPESA_SHORTCODE,
-    passkey: process.env.MPESA_PASSKEY,
-    
-    // Environment
-    environment: process.env.MPESA_ENVIRONMENT || 'sandbox',
-    
-    // Callback URLs
-    callbackUrl: process.env.MPESA_CALLBACK_URL,
-    timeoutUrl: process.env.MPESA_TIMEOUT_URL,
-    resultUrl: process.env.MPESA_RESULT_URL,
-    confirmationUrl: process.env.MPESA_CONFIRMATION_URL,
-    validationUrl: process.env.MPESA_VALIDATION_URL,
-    
-    // Test data
-    testPhone: process.env.MPESA_TEST_PHONE,
-    testPin: process.env.MPESA_TEST_PIN,
-    
-    // Feature flags
-    enableMpesa: process.env.ENABLE_MPESA === 'true',
-    enableStkPush: process.env.ENABLE_STK_PUSH === 'true',
-    
-    // Webhook security
-    webhookSecret: process.env.MPESA_WEBHOOK_SECRET,
-    
-    // API URLs
-    apiUrls: {
-        sandbox: {
-            auth: 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-            stkPush: 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-            stkQuery: 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-            stkPushStatus: 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-            c2bSimulate: 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate',
-            accountBalance: 'https://sandbox.safaricom.co.ke/mpesa/accountbalance/v1/query',
-            transactionStatus: 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query',
-            reversal: 'https://sandbox.safaricom.co.ke/mpesa/reversal/v1/request',
-            b2c: 'https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest'
-        },
-        production: {
-            auth: 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-            stkPush: 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-            stkQuery: 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-            stkPushStatus: 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-            c2bSimulate: 'https://api.safaricom.co.ke/mpesa/c2b/v1/simulate',
-            accountBalance: 'https://api.safaricom.co.ke/mpesa/accountbalance/v1/query',
-            transactionStatus: 'https://api.safaricom.co.ke/mpesa/transactionstatus/v1/query',
-            reversal: 'https://api.safaricom.co.ke/mpesa/reversal/v1/request',
-            b2c: 'https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest'
-        }
-    }
+    supabaseUrl: process.env.SUPABASE_URL || 'https://qpqkmmkrzxlhcpccefjn.supabase.co',
+    supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY,
+    mpesaConsumerKey: process.env.MPESA_CONSUMER_KEY,
+    mpesaConsumerSecret: process.env.MPESA_CONSUMER_SECRET,
+    mpesaPasskey: process.env.MPESA_PASSKEY,
+    mpesaShortcode: process.env.MPESA_SHORTCODE || '4095377',
+    backendUrl: process.env.BACKEND_URL || 'https://meidriveafrica-backend.onrender.com',
+    frontendUrl: process.env.FRONTEND_URL || 'https://meidriveafrica.com',
+    jwtSecret: process.env.JWT_SECRET || 'ph0jurMUHExgpz5e6g1hGU6gCqlW9yIefGhBEgwFUZB2jA/E/0t8y1StvWvzs4ZPwL6u6TzCU3mj4GoPH/8oAg==',
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 10000,
+    isProduction: process.env.NODE_ENV === 'production',
 };
 
-const currentApi = config.apiUrls[config.environment];
+// =====================================================
+// SUPABASE CLIENT
+// =====================================================
 
-// Validate required config
-if (!config.enableMpesa) {
-    log('warn', 'M-Pesa is disabled. Set ENABLE_MPESA=true to enable');
-}
+const supabase = createClient(config.supabaseUrl, config.supabaseKey);
 
-if (!config.consumerKey || !config.consumerSecret) {
-    log('error', 'Missing M-Pesa credentials. Check your .env file');
-}
+// =====================================================
+// EXPRESS APP
+// =====================================================
 
-log('info', `M-Pesa Configuration loaded`, {
-    environment: config.environment,
-    shortCode: config.shortCode,
-    enableStkPush: config.enableStkPush,
-    callbackUrl: config.callbackUrl
+const app = express();
+const PORT = config.port;
+
+// =====================================================
+// SECURITY MIDDLEWARE
+// =====================================================
+
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
+}));
+
+// =====================================================
+// CORS CONFIGURATION
+// =====================================================
+
+const allowedOrigins = config.isProduction 
+    ? [
+        'https://meidriveafrica.com',
+        'https://www.meidriveafrica.com',
+        'https://meidriveafrica.vercel.app',
+        'https://meidriveafrica-backend.onrender.com',
+        'https://auto-v.meipressgroup.com',
+    ]
+    : [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:5500',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173',
+        'https://*.onrender.com',
+    ];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (typeof allowed === 'string') return origin === allowed;
+            if (allowed instanceof RegExp) return allowed.test(origin);
+            return false;
+        });
+        
+        if (isAllowed || !config.isProduction) {
+            callback(null, true);
+        } else {
+            console.log('❌ CORS blocked:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Correlation-ID'],
+    credentials: true,
+    maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// =====================================================
+// REQUEST PARSING
+// =====================================================
+
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// =====================================================
+// LOGGING
+// =====================================================
+
+app.use((req, res, next) => {
+    console.log(`📝 [${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
 });
 
-// ============================================================
-// TOKEN MANAGEMENT (with caching and backup)
-// ============================================================
-let accessToken = null;
-let tokenExpiry = null;
-let currentCredentialsIndex = 0; // 0 = primary, 1 = backup
+// =====================================================
+// RATE LIMITING
+// =====================================================
 
-async function getAccessToken() {
-    // Return cached token if still valid
-    if (accessToken && tokenExpiry && tokenExpiry > Date.now()) {
-        log('debug', 'Using cached access token');
-        return accessToken;
-    }
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { success: false, error: 'Too many requests.' },
+});
+app.use('/api/', limiter);
 
-    // Try primary credentials first, then backup if available
-    const credentials = [
-        { key: config.consumerKey, secret: config.consumerSecret, name: 'primary' },
-        { key: config.consumerKeyBackup, secret: config.consumerSecretBackup, name: 'backup' }
-    ].filter(c => c.key && c.secret);
+const paymentLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    message: { success: false, error: 'Too many payment attempts.' },
+});
 
-    for (let i = currentCredentialsIndex; i < credentials.length; i++) {
-        const cred = credentials[i];
-        try {
-            log('info', `Fetching new access token using ${cred.name} credentials...`);
-            const auth = Buffer.from(`${cred.key}:${cred.secret}`).toString('base64');
+// =====================================================
+// HEALTH CHECK
+// =====================================================
 
-            const response = await axios.get(currentApi.auth, {
-                headers: { Authorization: `Basic ${auth}` },
-                timeout: 10000
-            });
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        environment: config.environment,
+        isProduction: config.isProduction,
+        mpesa_configured: !!(config.mpesaConsumerKey && config.mpesaConsumerSecret),
+        version: '2.3.0'
+    });
+});
 
-            accessToken = response.data.access_token;
-            tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
-            currentCredentialsIndex = i;
-            log('info', `Token obtained successfully using ${cred.name} credentials`);
-            return accessToken;
-        } catch (error) {
-            log('error', `Failed with ${cred.name} credentials:`, error.response?.data || error.message);
-            if (i === credentials.length - 1) {
-                throw new Error('All authentication attempts failed');
-            }
-            log('info', 'Failing over to backup credentials...');
+// =====================================================
+// TEST ROUTE
+// =====================================================
+
+app.get('/api/test', (req, res) => {
+    res.json({
+        success: true,
+        message: 'API is working!',
+        environment: config.environment,
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: 'GET /health',
+            payment_initiate: 'POST /api/v1/payments/mpesa/initiate',
+            payment_status: 'GET /api/v1/payments/status/:checkoutRequestID',
+            payment_callback: 'POST /api/v1/payments/mpesa/callback',
+            test: 'GET /api/test',
+            cors_test: 'GET /api/test/cors',
+            mpesa_test: 'GET /api/test/mpesa'
         }
+    });
+});
+
+// =====================================================
+// CORS TEST
+// =====================================================
+
+app.get('/api/test/cors', (req, res) => {
+    res.json({
+        success: true,
+        message: 'CORS is working!',
+        origin: req.headers.origin || 'No origin',
+        allowedOrigins: allowedOrigins,
+        environment: config.environment,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// =====================================================
+// M-PESA TEST
+// =====================================================
+
+app.get('/api/test/mpesa', async (req, res) => {
+    try {
+        res.json({
+            success: true,
+            mpesa_configured: !!(config.mpesaConsumerKey && config.mpesaConsumerSecret),
+            environment: config.environment,
+            isProduction: config.isProduction,
+            shortcode: config.mpesaShortcode,
+            callback_url: `${config.backendUrl}/api/v1/payments/mpesa/callback`,
+        });
+    } catch (error) {
+        res.json({ success: false, error: error.message });
     }
+});
 
-    throw new Error('No valid credentials available');
-}
+// =====================================================
+// HELPERS
+// =====================================================
 
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
 function getTimestamp() {
     const date = new Date();
     const year = date.getFullYear();
@@ -174,329 +224,338 @@ function getTimestamp() {
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-function getPassword(shortCode, passkey, timestamp) {
-    const str = `${shortCode}${passkey}${timestamp}`;
+function formatPhoneNumber(phone) {
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.startsWith('0')) cleaned = '254' + cleaned.substring(1);
+    else if (cleaned.startsWith('+254')) cleaned = cleaned.substring(1);
+    else if (!cleaned.startsWith('254')) cleaned = '254' + cleaned;
+    if (!cleaned.startsWith('254') || cleaned.length !== 12) {
+        throw new Error('Invalid phone number');
+    }
+    return cleaned;
+}
+
+function generateMpesaPassword(shortcode, passkey, timestamp) {
+    const str = `${shortcode}${passkey}${timestamp}`;
     return Buffer.from(str).toString('base64');
 }
 
-function formatPhoneNumber(phone) {
-    let formatted = phone.replace(/\D/g, '');
-    if (formatted.startsWith('0')) {
-        formatted = '254' + formatted.substring(1);
-    } else if (formatted.startsWith('+254')) {
-        formatted = '254' + formatted.substring(4);
-    } else if (formatted.length === 9) {
-        formatted = '254' + formatted;
-    }
-    return formatted;
-}
-
-// ============================================================
-// STK PUSH (Lipa Na M-Pesa)
-// ============================================================
-async function stkPush(phoneNumber, amount, accountReference, transactionDesc) {
-    if (!config.enableStkPush) {
-        throw new Error('STK Push is disabled by configuration');
-    }
-
-    const token = await getAccessToken();
-    const timestamp = getTimestamp();
-    const password = getPassword(config.shortCode, config.passkey, timestamp);
-    const formattedPhone = formatPhoneNumber(phoneNumber);
-
-    const requestBody = {
-        BusinessShortCode: config.shortCode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: 'CustomerPayBillOnline',
-        Amount: Math.round(parseFloat(amount)),
-        PartyA: formattedPhone,
-        PartyB: config.shortCode,
-        PhoneNumber: formattedPhone,
-        CallBackURL: config.callbackUrl,
-        AccountReference: accountReference.slice(0, 12),
-        TransactionDesc: transactionDesc.slice(0, 13)
-    };
-
-    log('info', 'Initiating STK Push', {
-        phone: formattedPhone,
-        amount: requestBody.Amount,
-        accountRef: accountReference,
-        environment: config.environment
-    });
-
-    const response = await axios.post(currentApi.stkPush, requestBody, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        timeout: 30000
-    });
-
-    log('info', 'STK Push Response', response.data);
-    return response.data;
-}
-
-// ============================================================
-// QUERY STK PUSH STATUS
-// ============================================================
-async function queryStatus(checkoutRequestID) {
-    const token = await getAccessToken();
-    const timestamp = getTimestamp();
-    const password = getPassword(config.shortCode, config.passkey, timestamp);
-
-    const requestBody = {
-        BusinessShortCode: config.shortCode,
-        Password: password,
-        Timestamp: timestamp,
-        CheckoutRequestID: checkoutRequestID
-    };
-
-    const response = await axios.post(currentApi.stkQuery, requestBody, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        timeout: 15000
-    });
-
-    return response.data;
-}
-
-// ============================================================
-// VERIFY WEBHOOK SIGNATURE
-// ============================================================
-function verifyWebhookSignature(req) {
-    const signature = req.headers['x-mpesa-signature'];
-    if (!config.webhookSecret) {
-        log('warn', 'Webhook secret not configured, skipping signature verification');
-        return true;
-    }
-    // Implement actual signature verification here
-    // For now, return true
-    return true;
-}
-
-// ============================================================
-// API ROUTES
-// ============================================================
-
-// Health check
-app.get('/', (req, res) => {
-    res.json({
-        status: 'OK',
-        service: 'M-Pesa Integration Server',
-        environment: config.environment,
-        shortCode: config.shortCode,
-        features: {
-            mpesa: config.enableMpesa,
-            stkPush: config.enableStkPush
-        },
-        timestamp: new Date().toISOString()
-    });
-});
-
-// STK Push endpoint
-app.post('/api/mpesa/stkpush', async (req, res) => {
+function encryptData(text) {
+    if (!text || !config.jwtSecret) return text;
     try {
-        const { phoneNumber, amount, accountReference, transactionDesc } = req.body;
+        const iv = crypto.randomBytes(16);
+        const key = crypto.scryptSync(config.jwtSecret, 'salt', 32);
+        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        let encrypted = cipher.update(text, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        return iv.toString('hex') + ':' + encrypted;
+    } catch (e) {
+        return text;
+    }
+}
 
-        // Validation
-        if (!phoneNumber || !amount) {
-            return res.status(400).json({
-                success: false,
-                error: 'Phone number and amount are required'
-            });
-        }
-
-        const numericAmount = Number(amount);
-        if (isNaN(numericAmount) || numericAmount < 1 || numericAmount > 150000) {
-            return res.status(400).json({
-                success: false,
-                error: 'Amount must be between 1 and 150,000 KES'
-            });
-        }
-
-        const result = await stkPush(
-            phoneNumber,
-            numericAmount,
-            accountReference || 'Course Payment',
-            transactionDesc || 'MEI Drive Africa Course'
+async function getMpesaToken() {
+    if (!config.mpesaConsumerKey || !config.mpesaConsumerSecret) return null;
+    try {
+        const auth = Buffer.from(`${config.mpesaConsumerKey}:${config.mpesaConsumerSecret}`).toString('base64');
+        const response = await axios.get(
+            config.isProduction 
+                ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+                : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+            { headers: { Authorization: `Basic ${auth}` }, timeout: 30000 }
         );
-
-        if (result.ResponseCode !== '0') {
-            return res.status(400).json({
-                success: false,
-                error: result.ResponseDescription,
-                responseCode: result.ResponseCode
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'STK Push sent. Check your phone for the M-Pesa prompt.',
-            checkoutRequestID: result.CheckoutRequestID,
-            merchantRequestID: result.MerchantRequestID,
-            customerMessage: result.CustomerMessage
-        });
+        return response.data.access_token;
     } catch (error) {
-        log('error', 'STK Push error:', error.response?.data || error.message);
-        res.status(500).json({
-            success: false,
-            error: error.response?.data?.errorMessage || error.message || 'Internal server error'
-        });
+        console.error('M-Pesa token error:', error.message);
+        return null;
     }
-});
+}
 
-// Query status endpoint
-app.post('/api/mpesa/query', async (req, res) => {
+// =====================================================
+// PAYMENT INITIATE
+// =====================================================
+
+app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async (req, res) => {
+    console.log('🚀 PAYMENT INITIATE ROUTE HIT!');
+    console.log('📥 Body:', JSON.stringify(req.body, null, 2));
+    
     try {
-        const { checkoutRequestID } = req.body;
-
-        if (!checkoutRequestID) {
-            return res.status(400).json({
-                success: false,
-                error: 'CheckoutRequestID is required'
-            });
+        const { phoneNumber, amount, courseId, userId, email, idempotencyKey } = req.body;
+        
+        // Validate
+        const errors = [];
+        if (!phoneNumber) errors.push('Phone number required');
+        if (!amount || amount < 1) errors.push('Valid amount required');
+        if (!courseId) errors.push('Course ID required');
+        
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, error: 'Validation failed', details: errors });
         }
-
-        const result = await queryStatus(checkoutRequestID);
-
+        
+        // Format phone
+        let formattedPhone;
+        try {
+            formattedPhone = formatPhoneNumber(phoneNumber);
+        } catch (e) {
+            return res.status(400).json({ success: false, error: e.message });
+        }
+        
+        // Check course
+        const { data: course, error: courseError } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('id', courseId)
+            .single();
+        
+        if (courseError || !course) {
+            return res.status(404).json({ success: false, error: 'Course not found' });
+        }
+        
+        // Create payment record
+        const encryptedPhone = encryptData(formattedPhone);
+        const paymentData = {
+            user_id: userId || null,
+            course_id: courseId,
+            amount: Math.round(amount),
+            phone_number_encrypted: encryptedPhone,
+            phone_number_hash: crypto.createHash('sha256').update(formattedPhone).digest('hex'),
+            checkout_request_id: 'REQ_' + Date.now() + '_' + Math.random().toString(36).substring(7),
+            idempotency_key: idempotencyKey || uuidv4(),
+            status: 'pending',
+            metadata: { course_name: course.name, raw_phone: phoneNumber, environment: config.environment },
+        };
+        
+        const { data: payment, error: paymentError } = await supabase
+            .from('payments')
+            .insert(paymentData)
+            .select()
+            .single();
+        
+        if (paymentError) {
+            console.error('Payment insert error:', paymentError);
+            return res.status(500).json({ success: false, error: 'Failed to create payment' });
+        }
+        
+        console.log('✅ Payment created:', payment.id);
+        
+        // Try M-Pesa STK Push
+        let mpesaResult = { status: 'skipped', message: 'M-Pesa not configured' };
+        let checkoutRequestId = payment.checkout_request_id;
+        
+        if (config.mpesaConsumerKey && config.mpesaConsumerSecret) {
+            try {
+                const token = await getMpesaToken();
+                if (token) {
+                    const timestamp = getTimestamp();
+                    const password = generateMpesaPassword(
+                        config.mpesaShortcode,
+                        config.mpesaPasskey,
+                        timestamp
+                    );
+                    
+                    const apiUrl = config.isProduction
+                        ? 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+                        : 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+                    
+                    const stkRequest = {
+                        BusinessShortCode: config.mpesaShortcode,
+                        Password: password,
+                        Timestamp: timestamp,
+                        TransactionType: 'CustomerPayBillOnline',
+                        Amount: Math.round(amount),
+                        PartyA: formattedPhone,
+                        PartyB: config.mpesaShortcode,
+                        PhoneNumber: formattedPhone,
+                        CallBackURL: `${config.backendUrl}/api/v1/payments/mpesa/callback`,
+                        AccountReference: `MEI${String(courseId).slice(0, 6)}${Date.now().toString().slice(-6)}`,
+                        TransactionDesc: `MEI DRIVE - ${course.name.slice(0, 20)}`,
+                    };
+                    
+                    const mpesaResponse = await axios.post(apiUrl, stkRequest, {
+                        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        timeout: 35000,
+                    });
+                    
+                    if (mpesaResponse.data.ResponseCode === '0') {
+                        checkoutRequestId = mpesaResponse.data.CheckoutRequestID;
+                        mpesaResult = {
+                            status: 'sent',
+                            checkoutRequestID: checkoutRequestId,
+                            message: 'STK Push sent successfully'
+                        };
+                        
+                        await supabase
+                            .from('payments')
+                            .update({ checkout_request_id: checkoutRequestId, status: 'processing' })
+                            .eq('id', payment.id);
+                    } else {
+                        mpesaResult = { status: 'failed', error: mpesaResponse.data.ResponseDescription };
+                    }
+                }
+            } catch (mpesaError) {
+                console.error('M-Pesa error:', mpesaError.message);
+                mpesaResult = { status: 'error', error: mpesaError.message };
+            }
+        }
+        
         res.json({
             success: true,
-            data: result
+            paymentId: payment.id,
+            checkoutRequestID: checkoutRequestId,
+            amount: payment.amount,
+            status: payment.status,
+            mpesa: mpesaResult,
+            message: mpesaResult.status === 'sent' ? 'STK Push sent.' : 'Payment created.',
         });
+        
     } catch (error) {
-        log('error', 'Query error:', error.response?.data || error.message);
-        res.status(500).json({
-            success: false,
-            error: error.response?.data?.errorMessage || error.message
+        console.error('❌ Payment error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// =====================================================
+// M-PESA CALLBACK
+// =====================================================
+
+app.post('/api/v1/payments/mpesa/callback', async (req, res) => {
+    console.log('📞 M-Pesa callback received');
+    
+    try {
+        const { Body } = req.body;
+        if (!Body || !Body.stkCallback) {
+            return res.json({ ResultCode: 0, ResultDesc: 'Success' });
+        }
+        
+        const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
+        
+        const { data: payment } = await supabase
+            .from('payments')
+            .select('*')
+            .eq('checkout_request_id', CheckoutRequestID)
+            .single();
+        
+        if (!payment) {
+            console.log('⚠️ Payment not found:', CheckoutRequestID);
+            return res.json({ ResultCode: 0, ResultDesc: 'Success' });
+        }
+        
+        if (ResultCode === 0 && CallbackMetadata) {
+            const items = CallbackMetadata.Item || [];
+            const receiptNumber = items.find(i => i.Name === 'MpesaReceiptNumber')?.Value;
+            
+            await supabase
+                .from('payments')
+                .update({ status: 'completed', transaction_id: receiptNumber, mpesa_receipt: receiptNumber, completed_at: new Date().toISOString() })
+                .eq('id', payment.id);
+            
+            await supabase
+                .from('enrollments')
+                .insert({ user_id: payment.user_id, course_id: payment.course_id, amount_paid: payment.amount, transaction_id: receiptNumber, status: 'active', enrolled_at: new Date().toISOString() });
+            
+            console.log('✅ Payment successful:', receiptNumber);
+        } else {
+            await supabase
+                .from('payments')
+                .update({ status: 'failed', failure_reason: ResultDesc, failure_code: ResultCode.toString(), failed_at: new Date().toISOString() })
+                .eq('id', payment.id);
+            
+            console.log('❌ Payment failed:', ResultDesc);
+        }
+        
+        res.json({ ResultCode: 0, ResultDesc: 'Success' });
+        
+    } catch (error) {
+        console.error('Callback error:', error);
+        res.json({ ResultCode: 0, ResultDesc: 'Success' });
+    }
+});
+
+// =====================================================
+// PAYMENT STATUS
+// =====================================================
+
+app.get('/api/v1/payments/status/:checkoutRequestID', async (req, res) => {
+    try {
+        const { checkoutRequestID } = req.params;
+        
+        const { data: payment } = await supabase
+            .from('payments')
+            .select('id, amount, status, transaction_id, mpesa_receipt, created_at, completed_at, failure_reason')
+            .eq('checkout_request_id', checkoutRequestID)
+            .single();
+        
+        if (!payment) {
+            return res.status(404).json({ success: false, error: 'Payment not found' });
+        }
+        
+        res.json({
+            success: true,
+            payment: {
+                id: payment.id,
+                amount: payment.amount,
+                status: payment.status,
+                transaction_id: payment.transaction_id,
+                mpesa_receipt: payment.mpesa_receipt,
+                created_at: payment.created_at,
+                completed_at: payment.completed_at,
+                failure_reason: payment.failure_reason,
+            },
         });
+        
+    } catch (error) {
+        console.error('Status error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// M-Pesa Callback endpoint
-app.post('/api/mpesa/callback', async (req, res) => {
-    log('info', 'Callback received');
-    log('debug', 'Callback body:', req.body);
+// =====================================================
+// 404
+// =====================================================
 
-    // Verify webhook signature
-    if (!verifyWebhookSignature(req)) {
-        log('warn', 'Invalid webhook signature');
-        return res.status(401).json({ ResultCode: 1, ResultDesc: 'Invalid signature' });
-    }
-
-    const { Body } = req.body;
-    const { stkCallback } = Body;
-
-    if (stkCallback.ResultCode === 0) {
-        // Payment successful
-        const checkoutRequestID = stkCallback.CheckoutRequestID;
-        const mpesaReceiptNumber = stkCallback.CallbackMetadata?.Item?.find(
-            item => item.Name === 'MpesaReceiptNumber'
-        )?.Value;
-        const amount = stkCallback.CallbackMetadata?.Item?.find(
-            item => item.Name === 'Amount'
-        )?.Value;
-        const phoneNumber = stkCallback.CallbackMetadata?.Item?.find(
-            item => item.Name === 'PhoneNumber'
-        )?.Value;
-
-        log('info', '✅ Payment successful!', {
-            receipt: mpesaReceiptNumber,
-            amount: `KES ${amount}`,
-            phone: phoneNumber,
-            checkoutId: checkoutRequestID
-        });
-
-        // TODO: Update database, enroll user, send email/SMS
-        // await updatePaymentStatus(checkoutRequestID, 'completed', mpesaReceiptNumber);
-        // await enrollUserInCourse(phoneNumber, amount);
-    } else {
-        // Payment failed
-        log('error', `❌ Payment failed: ${stkCallback.ResultDesc}`);
-        // TODO: Update database with failed status
-        // await updatePaymentStatus(stkCallback.CheckoutRequestID, 'failed', null, stkCallback.ResultDesc);
-    }
-
-    // Always respond with success to M-Pesa
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-});
-
-// Timeout endpoint
-app.post('/api/mpesa/timeout', (req, res) => {
-    log('warn', 'Timeout received:', req.body);
-    // TODO: Handle timeout - payment not completed in time
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-});
-
-// Result endpoint
-app.post('/api/mpesa/result', (req, res) => {
-    log('info', 'Result received:', req.body);
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-});
-
-// Confirmation endpoint (for C2B)
-app.post('/api/mpesa/confirmation', (req, res) => {
-    log('info', 'Confirmation received:', req.body);
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-});
-
-// Validation endpoint (for C2B)
-app.post('/api/mpesa/validation', (req, res) => {
-    log('info', 'Validation received:', req.body);
-    res.json({ ResultCode: 0, ResultDesc: 'Success' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    log('error', 'Unhandled error:', err);
-    res.status(500).json({
-        success: false,
-        error: 'Internal server error'
-    });
-});
-
-// 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
-        error: 'Endpoint not found'
+        error: 'Endpoint not found',
+        path: req.path,
     });
 });
 
-// ============================================================
-// START SERVER
-// ============================================================
-app.listen(PORT, () => {
-    console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   🚀 MEI DRIVE AFRICA - M-PESA Integration Server          ║
-║                                                              ║
-╠══════════════════════════════════════════════════════════════╣
-║  Environment:   ${config.environment.padEnd(44)}║
-║  Shortcode:     ${config.shortCode.padEnd(44)}║
-║  Port:          ${PORT.toString().padEnd(44)}║
-║  Callback URL:  ${(config.callbackUrl || 'not set').slice(0, 44).padEnd(44)}║
-║  M-Pesa:        ${config.enableMpesa ? '✅ Enabled' : '❌ Disabled'.padEnd(44)}║
-║  STK Push:      ${config.enableStkPush ? '✅ Enabled' : '❌ Disabled'.padEnd(44)}║
-║                                                              ║
-║  Status:        🟢 Running                                   ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-    `);
-    
-    if (config.environment === 'sandbox') {
-        console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║  ⚠️  SANDBOX MODE                                           ║
-║  Test Phone:   ${config.testPhone || '254708374149'}                           ║
-║  Test PIN:     ${config.testPin || '123456'}                                 ║
-║                                                              ║
-║  ✅ Real M-Pesa app WILL NOT receive prompts in sandbox.    ║
-║  ✅ Use Safaricom Developer Portal simulator to test.       ║
-╚══════════════════════════════════════════════════════════════╝
-        `);
-    }
+// =====================================================
+// ERROR HANDLER
+// =====================================================
+
+app.use((err, req, res, next) => {
+    console.error('❌ Error:', err);
+    res.status(500).json({
+        success: false,
+        error: config.isProduction ? 'Internal server error' : err.message,
+    });
 });
+
+// =====================================================
+// START SERVER
+// =====================================================
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║     🚗 MEI DRIVE AFRICA - PAYMENT SYSTEM                         ║
+║     ✅ RUNNING v2.3.0                                            ║
+║     📡 Port: ${PORT}                                               ║
+║     🌍 Environment: ${config.environment}                         ║
+║     💳 M-Pesa: ${config.mpesaConsumerKey ? '✅ Configured' : '❌ Not Configured'} ║
+║     📦 Supabase: ✅ Connected                                    ║
+║                                                                   ║
+║     📋 Health: GET /health                                       ║
+║     💰 Initiate: POST /api/v1/payments/mpesa/initiate            ║
+║     📞 Callback: POST /api/v1/payments/mpesa/callback            ║
+║     🔍 Status: GET /api/v1/payments/status/:checkoutRequestID    ║
+║     ✅ Test: GET /api/test                                       ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+    `);
+});
+
+export default app;

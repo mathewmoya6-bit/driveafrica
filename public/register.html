@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - MEI Drive Africa</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .register-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .logo { font-size: 48px; margin-bottom: 20px; }
+        h2 { color: #041B3D; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00FF88;
+            color: #041B3D;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .error { color: red; margin-top: 10px; font-size: 14px; }
+        .success { color: green; margin-top: 10px; font-size: 14px; }
+        .back { margin-top: 20px; display: inline-block; color: #666; text-decoration: none; margin: 10px; }
+        .back:hover { color: #00FF88; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">🚗</div>
+        <h2>Create Account</h2>
+        <input type="text" id="fullName" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password (min 6 characters)">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+        <button onclick="register()">Register</button>
+        <div id="error" class="error"></div>
+        <div id="success" class="success"></div>
+        <div>
+            <a href="/login.html" class="back">Already have an account? Login</a>
+            <a href="/" class="back">← Back to Home</a>
+        </div>
+    </div>
+    <script>
+        const SUPABASE_URL = 'https://jeksrwrzzrczamxijvwl.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impla3Nyd3J6enJjemFteGlqdndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzYyMjAsImV4cCI6MjA5NDI1MjIyMH0.1poYpJKNFEVe2NTBkXBTH2bIHGk2yT8aqCU-OlJc4vs';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        async function register() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            document.getElementById('error').textContent = '';
+            document.getElementById('success').textContent = '';
+            
+            if (!fullName || !email || !password || !confirmPassword) {
+                document.getElementById('error').textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password.length < 6) {
+                document.getElementById('error').textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                document.getElementById('error').textContent = 'Passwords do not match';
+                return;
+            }
+            
+            const { data, error } = await supabase.auth.signUp({
+                email, password,
+                options: { data: { full_name: fullName } }
+            });
+            
+            if (error) {
+                document.getElementById('error').textContent = error.message;
+            } else {
+                document.getElementById('success').textContent = 'Registration successful! Please check your email.';
+                setTimeout(() => window.location.href = '/login.html', 3000);
+            }
+        }
+    </script>
+</body>
+</html>
