@@ -1,6 +1,6 @@
 // =====================================================
 // MEI DRIVE AFRICA - PAYMENT SYSTEM
-// COMPLETE WORKING VERSION - COPY THIS ENTIRE FILE
+// PRODUCTION READY v2.1.0
 // =====================================================
 
 import express from 'express';
@@ -48,9 +48,11 @@ const config = {
     mpesaPasskey: process.env.MPESA_PASSKEY,
     mpesaShortcode: process.env.MPESA_SHORTCODE || '4095377',
     backendUrl: process.env.BACKEND_URL || 'https://meidriveafrica-backend.onrender.com',
-    jwtSecret: process.env.JWT_SECRET || 'your-secret-key-change-this',
+    frontendUrl: process.env.FRONTEND_URL || 'https://meidriveafrica.com',
+    jwtSecret: process.env.JWT_SECRET || 'ph0jurMUHExgpz5e6g1hGU6gCqlW9yIefGhBEgwFUZB2jA/E/0t8y1StvWvzs4ZPwL6u6TzCU3mj4GoPH/8oAg==',
     environment: process.env.NODE_ENV || 'development',
     port: process.env.PORT || 10000,
+    isProduction: process.env.NODE_ENV === 'production',
 };
 
 // =====================================================
@@ -66,38 +68,133 @@ const supabase = createClient(config.supabaseUrl, config.supabaseKey);
 const app = express();
 const PORT = config.port;
 
-// Security
+// =====================================================
+// SECURITY MIDDLEWARE
+// =====================================================
+
 app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
 }));
 
-// CORS
-app.use(cors({
-    origin: config.environment === 'production' 
-        ? ['https://meidriveafrica.com', 'https://www.meidriveafrica.com']
-        : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5500', 'https://*.onrender.com'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Correlation-ID'],
+// =====================================================
+// CORS CONFIGURATION - FIXED FOR PRODUCTION
+// =====================================================
+
+// Allowed origins for production
+const allowedOrigins = config.isProduction 
+    ? [
+        'https://meidriveafrica.com',
+        'https://www.meidriveafrica.com',
+        'https://meidriveafrica.vercel.app',
+        'https://meidriveafrica-backend.onrender.com',
+      ]
+    : [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:5500',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173',
+        'https://*.onrender.com',
+      ];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, postman)
+        if (!origin) {
+            console.log('✅ Request with no origin, allowing');
+            return callback(null, true);
+        }
+        
+        console.log(`📥 Request from origin: ${origin}`);
+        
+        // Check if origin is allowed
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (typeof allowed === 'string') {
+                return origin === allowed;
+            }
+            if (allowed instanceof RegExp) {
+                return allowed.test(origin);
+            }
+            return false;
+        });
+        
+        if (isAllowed) {
+            console.log('✅ Origin allowed');
+            callback(null, true);
+        } else if (!config.isProduction) {
+            // Allow all origins in development
+            console.log('⚠️ Development mode: Allowing all origins');
+            callback(null, true);
+        } else {
+            console.log('❌ CORS blocked:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'Accept',
+        'Origin',
+        'Access-Control-Allow-Origin',
+        'Access-Control-Allow-Headers',
+        'Access-Control-Allow-Methods',
+        'X-Correlation-ID'
+    ],
+    exposedHeaders: ['Content-Length', 'X-Request-Id'],
     credentials: true,
-}));
+    maxAge: 86400, // 24 hours
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
+// =====================================================
+// REQUEST PARSING
+// =====================================================
 
 app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
-// Logging
+// =====================================================
+// LOGGING
+// =====================================================
+
 app.use((req, res, next) => {
-    console.log(`📝 [${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log(`📝 [${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin || 'No Origin'}`);
     next();
 });
 
-// Rate limiting
+// =====================================================
+// RATE LIMITING
+// =====================================================
+
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 50,
-    message: { success: false, error: 'Too many requests' },
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { success: false, error: 'Too many requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
 });
+
+// Apply rate limiting to all API routes
 app.use('/api/', limiter);
+
+// Stricter rate limit for payment initiation
+const paymentLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // 10 payment attempts per hour
+    message: { success: false, error: 'Too many payment attempts. Please wait an hour.' },
+});
 
 // =====================================================
 // HEALTH CHECK
@@ -108,9 +205,14 @@ app.get('/health', async (req, res) => {
         status: 'ok',
         timestamp: new Date().toISOString(),
         environment: config.environment,
+        isProduction: config.isProduction,
         mpesa_configured: !!(config.mpesaConsumerKey && config.mpesaConsumerSecret),
         supabase: 'connected',
-        version: '2.0.0'
+        cors: {
+            allowedOrigins: allowedOrigins,
+            count: allowedOrigins.length,
+        },
+        version: '2.1.0'
     });
 });
 
@@ -120,16 +222,26 @@ app.get('/health', async (req, res) => {
 
 function getTimestamp() {
     const date = new Date();
-    return date.toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
 function formatPhoneNumber(phone) {
     let cleaned = phone.replace(/\D/g, '');
-    if (cleaned.startsWith('0')) cleaned = '254' + cleaned.substring(1);
-    else if (cleaned.startsWith('+254')) cleaned = cleaned.substring(1);
-    else if (!cleaned.startsWith('254')) cleaned = '254' + cleaned;
+    if (cleaned.startsWith('0')) {
+        cleaned = '254' + cleaned.substring(1);
+    } else if (cleaned.startsWith('+254')) {
+        cleaned = cleaned.substring(1);
+    } else if (!cleaned.startsWith('254')) {
+        cleaned = '254' + cleaned;
+    }
     if (!cleaned.startsWith('254') || cleaned.length !== 12) {
-        throw new Error('Invalid phone number');
+        throw new Error('Invalid phone number. Must be a valid Kenyan number (e.g., 0712345678)');
     }
     return cleaned;
 }
@@ -144,6 +256,7 @@ function encryptData(text) {
         encrypted += cipher.final('hex');
         return iv.toString('hex') + ':' + encrypted;
     } catch (e) {
+        console.error('Encryption error:', e.message);
         return text;
     }
 }
@@ -152,6 +265,7 @@ function decryptData(encrypted) {
     if (!encrypted || !config.jwtSecret) return encrypted;
     try {
         const [ivHex, encryptedHex] = encrypted.split(':');
+        if (!ivHex || !encryptedHex) return encrypted;
         const iv = Buffer.from(ivHex, 'hex');
         const key = crypto.scryptSync(config.jwtSecret, 'salt', 32);
         const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
@@ -159,47 +273,64 @@ function decryptData(encrypted) {
         decrypted += decipher.final('utf8');
         return decrypted;
     } catch (e) {
+        console.error('Decryption error:', e.message);
         return encrypted;
     }
 }
 
 async function getMpesaToken() {
     if (!config.mpesaConsumerKey || !config.mpesaConsumerSecret) {
+        console.log('⚠️ M-Pesa credentials not configured');
         return null;
     }
     try {
         const auth = Buffer.from(`${config.mpesaConsumerKey}:${config.mpesaConsumerSecret}`).toString('base64');
         const response = await axios.get(
-            'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-            { headers: { Authorization: `Basic ${auth}` }, timeout: 30000 }
+            'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+            { 
+                headers: { Authorization: `Basic ${auth}` }, 
+                timeout: 30000 
+            }
         );
+        console.log('✅ M-Pesa token obtained');
         return response.data.access_token;
     } catch (error) {
-        console.error('M-Pesa token error:', error.message);
+        console.error('❌ M-Pesa token error:', error.message);
+        if (error.response) {
+            console.error('Response:', error.response.data);
+        }
         return null;
     }
+}
+
+function generateMpesaPassword(shortcode, passkey, timestamp) {
+    const str = `${shortcode}${passkey}${timestamp}`;
+    return Buffer.from(crypto.createHash('sha256').update(str).digest()).toString('base64');
 }
 
 // =====================================================
 // PAYMENT INITIATE
 // =====================================================
 
-app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
+app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async (req, res) => {
     console.log('📥 Payment initiation request');
     console.log('Body:', JSON.stringify(req.body, null, 2));
     
     try {
         const { phoneNumber, amount, courseId, userId, email, courseName, idempotencyKey } = req.body;
         
-        // Validate
-        if (!phoneNumber) {
-            return res.status(400).json({ success: false, error: 'Phone number required' });
-        }
-        if (!amount || amount < 1) {
-            return res.status(400).json({ success: false, error: 'Valid amount required' });
-        }
-        if (!courseId) {
-            return res.status(400).json({ success: false, error: 'Course ID required' });
+        // Validate required fields
+        const errors = [];
+        if (!phoneNumber) errors.push('Phone number required');
+        if (!amount || amount < 1) errors.push('Valid amount required');
+        if (!courseId) errors.push('Course ID required');
+        
+        if (errors.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Validation failed',
+                details: errors 
+            });
         }
         
         // Format phone
@@ -300,9 +431,11 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
                 const token = await getMpesaToken();
                 if (token) {
                     const timestamp = getTimestamp();
-                    const password = Buffer.from(
-                        `${config.mpesaShortcode}${config.mpesaPasskey}${timestamp}`
-                    ).toString('base64');
+                    const password = generateMpesaPassword(
+                        config.mpesaShortcode,
+                        config.mpesaPasskey,
+                        timestamp
+                    );
                     
                     const stkRequest = {
                         BusinessShortCode: config.mpesaShortcode,
@@ -314,13 +447,13 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
                         PartyB: config.mpesaShortcode,
                         PhoneNumber: formattedPhone,
                         CallBackURL: `${config.backendUrl}/api/v1/payments/mpesa/callback`,
-                        AccountReference: `MEI${courseId}${Date.now().toString().slice(-6)}`,
+                        AccountReference: `MEI${courseId.slice(0, 6)}${Date.now().toString().slice(-6)}`,
                         TransactionDesc: `MEI DRIVE - ${course.name.slice(0, 20)}`,
                     };
                     
                     console.log('📤 Sending STK Push...');
                     const mpesaResponse = await axios.post(
-                        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+                        'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
                         stkRequest,
                         {
                             headers: {
@@ -338,6 +471,7 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
                         mpesaResult = {
                             status: 'sent',
                             checkoutRequestID: checkoutRequestId,
+                            merchantRequestID: mpesaResponse.data.MerchantRequestID,
                             message: 'STK Push sent successfully'
                         };
                         
@@ -352,7 +486,8 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
                     } else {
                         mpesaResult = {
                             status: 'failed',
-                            error: mpesaResponse.data.ResponseDescription || 'STK Push failed'
+                            error: mpesaResponse.data.ResponseDescription || 'STK Push failed',
+                            responseCode: mpesaResponse.data.ResponseCode
                         };
                     }
                 } else {
@@ -360,6 +495,9 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
                 }
             } catch (mpesaError) {
                 console.error('M-Pesa error:', mpesaError.message);
+                if (mpesaError.response) {
+                    console.error('Response:', mpesaError.response.data);
+                }
                 mpesaResult = {
                     status: 'error',
                     error: mpesaError.response?.data?.errorMessage || mpesaError.message
@@ -387,7 +525,7 @@ app.post('/api/v1/payments/mpesa/initiate', async (req, res) => {
         res.status(500).json({
             success: false,
             error: error.message || 'Internal server error',
-            stack: config.environment === 'development' ? error.stack : undefined,
+            ...(config.environment === 'development' && { stack: error.stack }),
         });
     }
 });
@@ -578,6 +716,7 @@ app.get('/api/v1/admin/dashboard', async (req, res) => {
                 revenue: totalRevenue,
                 count: totalStats?.length || 0,
                 pending: totalStats?.filter(p => p.status === 'pending').length || 0,
+                processing: totalStats?.filter(p => p.status === 'processing').length || 0,
                 completed: totalStats?.filter(p => p.status === 'completed').length || 0,
                 failed: totalStats?.filter(p => p.status === 'failed').length || 0,
             },
@@ -601,7 +740,9 @@ app.get('/api/test/mpesa', async (req, res) => {
             mpesa_configured: !!(config.mpesaConsumerKey && config.mpesaConsumerSecret),
             token_received: !!token,
             environment: config.environment,
+            isProduction: config.isProduction,
             shortcode: config.mpesaShortcode,
+            callback_url: `${config.backendUrl}/api/v1/payments/mpesa/callback`,
         });
     } catch (error) {
         res.json({
@@ -609,6 +750,22 @@ app.get('/api/test/mpesa', async (req, res) => {
             error: error.message,
         });
     }
+});
+
+// =====================================================
+// CORS TEST ENDPOINT
+// =====================================================
+
+app.options('/api/test/cors', cors(corsOptions));
+app.get('/api/test/cors', (req, res) => {
+    res.json({
+        success: true,
+        message: 'CORS is working!',
+        origin: req.headers.origin || 'No origin',
+        allowedOrigins: allowedOrigins,
+        environment: config.environment,
+        timestamp: new Date().toISOString()
+    });
 });
 
 // =====================================================
@@ -620,6 +777,7 @@ app.use((req, res) => {
         success: false,
         error: 'Endpoint not found',
         path: req.path,
+        method: req.method,
     });
 });
 
@@ -629,10 +787,21 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err);
+    console.error('Stack:', err.stack);
+    
+    // Handle CORS errors specifically
+    if (err.message === 'Not allowed by CORS') {
+        return res.status(403).json({
+            success: false,
+            error: 'Access denied by CORS policy',
+            allowedOrigins: allowedOrigins,
+        });
+    }
+    
     res.status(500).json({
         success: false,
-        error: config.environment === 'production' ? 'Internal server error' : err.message,
-        stack: config.environment === 'development' ? err.stack : undefined,
+        error: config.isProduction ? 'Internal server error' : err.message,
+        ...(config.environment === 'development' && { stack: err.stack }),
     });
 });
 
@@ -648,12 +817,26 @@ app.listen(PORT, '0.0.0.0', () => {
 ║     ✅ RUNNING                                                    ║
 ║     📡 Port: ${PORT}                                               ║
 ║     🌍 Environment: ${config.environment}                         ║
+║     🏭 Production: ${config.isProduction}                         ║
 ║     💳 M-Pesa: ${config.mpesaConsumerKey ? '✅ Configured' : '❌ Not Configured'} ║
 ║     📦 Supabase: ✅ Connected                                    ║
+║     🔗 Backend URL: ${config.backendUrl}                         ║
+║     🌐 Frontend URL: ${config.frontendUrl}                       ║
 ║                                                                   ║
-║     📋 Health: http://localhost:${PORT}/health                     ║
+║     📋 Health: GET /health                                       ║
 ║     💰 Initiate: POST /api/v1/payments/mpesa/initiate            ║
+║     📞 Callback: POST /api/v1/payments/mpesa/callback            ║
+║     ✅ CORS Test: GET /api/test/cors                             ║
 ║                                                                   ║
+║     🔒 CORS Allowed Origins (${allowedOrigins.length}):          ║
+╚═══════════════════════════════════════════════════════════════════╝
+    `);
+    
+    allowedOrigins.forEach((origin, index) => {
+        console.log(`        ${index + 1}. ${origin}`);
+    });
+    
+    console.log(`
 ╚═══════════════════════════════════════════════════════════════════╝
     `);
 });
