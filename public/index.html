@@ -7,7 +7,6 @@
     <meta name="description" content="Professional driver training courses and exam preparation." />
     <meta name="theme-color" content="#0a192f" />
 
-    <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
 
@@ -17,7 +16,6 @@
     </script>
 
     <style>
-        /* ----- RESET & BASE ----- */
         * {
             margin: 0;
             padding: 0;
@@ -37,7 +35,6 @@
             --card-bg: rgba(13, 33, 55, 0.85);
         }
 
-        /* ----- NAVBAR ----- */
         .navbar {
             position: fixed;
             top: 0;
@@ -166,7 +163,6 @@
             color: var(--primary);
         }
 
-        /* ----- HERO ----- */
         .hero {
             text-align: center;
             padding: 130px 20px 60px;
@@ -186,7 +182,6 @@
             margin: 0 auto 1.5rem;
         }
 
-        /* ----- CONTAINER & CARDS ----- */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -283,7 +278,6 @@
             margin-top: 0.5rem;
         }
 
-        /* ----- TOAST ----- */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -301,7 +295,6 @@
             max-width: 400px;
         }
 
-        /* ----- AUTH MODAL ----- */
         .auth-modal-overlay {
             position: fixed;
             top: 0;
@@ -422,7 +415,6 @@
             background: var(--border);
         }
 
-        /* ----- PAYMENT MODAL ----- */
         .payment-modal {
             position: fixed;
             top: 0;
@@ -477,7 +469,6 @@
             outline: none;
         }
 
-        /* ----- FOOTER ----- */
         footer {
             text-align: center;
             padding: 2rem;
@@ -486,7 +477,6 @@
             margin-top: 3rem;
         }
 
-        /* ----- ANIMATIONS ----- */
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -503,7 +493,6 @@
             }
         }
 
-        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2rem;
@@ -536,13 +525,9 @@
 </head>
 <body>
 
-    <!-- APP ROOT -->
     <div id="app"></div>
-
-    <!-- TOAST CONTAINER -->
     <div id="toast-container" class="toast-container"></div>
 
-    <!-- AUTH MODAL -->
     <div id="authModal" class="auth-modal-overlay">
         <div class="auth-modal">
             <button class="close-btn" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
@@ -551,9 +536,6 @@
     </div>
 
     <script>
-        // ============================================================
-        //  SUPABASE — SINGLE SOURCE OF TRUTH
-        // ============================================================
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
         const BACKEND_URL = 'https://meidriveafrica-backend.onrender.com';
@@ -566,9 +548,6 @@
             }
         });
 
-        // ============================================================
-        //  GLOBAL STATE
-        // ============================================================
         let courses = [];
         let currentUser = null;
         let userEnrollments = {};
@@ -577,9 +556,6 @@
         let enrollingCourseId = null;
         let processingPayment = false;
 
-        // ============================================================
-        //  HELPERS
-        // ============================================================
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
@@ -606,9 +582,6 @@
             }
         }
 
-        // ============================================================
-        //  AUTH
-        // ============================================================
         function showAuthModal(mode = 'login') {
             const modal = document.getElementById('authModal');
             const content = document.getElementById('authModalContent');
@@ -697,9 +670,6 @@
             showToast('Logged out', 'success');
         }
 
-        // ============================================================
-        //  DATA LOADING — SUPABASE SINGLE SOURCE OF TRUTH
-        // ============================================================
         async function loadCourses() {
             try {
                 const { data, error } = await supabase.from('courses').select('*').order('id');
@@ -743,9 +713,6 @@
             }
         }
 
-        // ============================================================
-        //  ENROLLMENT & PAYMENT
-        // ============================================================
         async function enrollCourse(courseId) {
             if (enrollingCourseId === courseId) { showToast('Processing...', 'info'); return; }
             if (!currentUser) { showToast('Please login to enroll', 'info');
@@ -923,9 +890,6 @@
             loadCourses();
         }
 
-        // ============================================================
-        //  RENDER UI
-        // ============================================================
         function renderHome() {
             const freeCount = courses.filter(c => c.price === 0).length;
             const totalModules = courses.reduce((sum, c) => sum + (c.lessons_count || 0), 0);
@@ -1007,11 +971,7 @@
             window.location.href = `course.html?id=${courseId}`;
         }
 
-        // ============================================================
-        //  REALTIME SUBSCRIPTIONS — SINGLE SOURCE OF TRUTH
-        // ============================================================
         function subscribeRealtime() {
-            // Courses channel — any change updates the UI instantly
             const coursesChannel = supabase
                 .channel('public-courses-changes')
                 .on('postgres_changes', {
@@ -1023,7 +983,6 @@
                 })
                 .subscribe();
 
-            // Enrollments channel — keep user enrollment status fresh
             const enrollmentsChannel = supabase
                 .channel('public-enrollments-changes')
                 .on('postgres_changes', {
@@ -1041,16 +1000,12 @@
             window._channels = [coursesChannel, enrollmentsChannel];
         }
 
-        // ============================================================
-        //  INIT
-        // ============================================================
         async function initializeApp() {
             await loadUser();
             await loadCourses();
             subscribeRealtime();
         }
 
-        // Expose globals for inline onclick handlers
         window.enrollCourse = enrollCourse;
         window.processPayment = processPayment;
         window.cancelPayment = cancelPayment;
@@ -1063,7 +1018,6 @@
         window.viewCourse = viewCourse;
         window.loadCourses = loadCourses;
 
-        // Start the app
         initializeApp();
     </script>
 </body>
