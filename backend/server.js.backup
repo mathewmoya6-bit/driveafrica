@@ -1,6 +1,6 @@
 ﻿// =====================================================
 // MEI DRIVE AFRICA - PRODUCTION PAYMENT SYSTEM
-// VERSION 3.0.1 - FIXED SYNTAX ERRORS
+// VERSION 3.0.0 - READY FOR DEPLOYMENT
 // =====================================================
 
 import express from 'express';
@@ -30,15 +30,11 @@ const requiredEnvVars = [
     'JWT_SECRET'
 ];
 
-const missingEnvVars = requiredEnvVars.filter(function(v) {
-    return !process.env[v];
-});
+const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
 
 if (missingEnvVars.length > 0) {
     console.error('❌ Missing required environment variables:');
-    missingEnvVars.forEach(function(v) {
-        console.error('   - ' + v);
-    });
+    missingEnvVars.forEach(v => console.error(   - ));
     console.error('❌ Server will not start.');
     process.exit(1);
 }
@@ -61,12 +57,12 @@ const config = {
     jwtSecret: process.env.JWT_SECRET,
     environment: process.env.NODE_ENV || 'production',
     port: process.env.PORT || 10000,
-    isProduction: true
+    isProduction: true,
 };
 
 console.log('🚀 Starting MEI DRIVE AFRICA Payment System');
-console.log('🌍 Environment: ' + config.environment);
-console.log('💳 M-Pesa Shortcode: ' + config.mpesaShortcode);
+console.log(🌍 Environment: );
+console.log(💳 M-Pesa Shortcode: );
 
 // =====================================================
 // SUPABASE CLIENT
@@ -89,7 +85,7 @@ app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: { policy: "unsafe-none" }
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
 }));
 
 // =====================================================
@@ -100,34 +96,31 @@ const allowedOrigins = [
     'https://meidriveafrica.com',
     'https://www.meidriveafrica.com',
     'https://meidriveafrica.vercel.app',
-    'https://auto-v.meipressgroup.com'
+    'https://auto-v.meipressgroup.com',
+    /^https:\/\/.*\.onrender\.com$/,
 ];
 
 const corsOptions = {
-    origin: function(origin, callback) {
-        if (!origin) {
-            return callback(null, true);
-        }
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
         
-        var isAllowed = false;
-        for (var i = 0; i < allowedOrigins.length; i++) {
-            if (origin === allowedOrigins[i]) {
-                isAllowed = true;
-                break;
-            }
-        }
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (typeof allowed === 'string') return origin === allowed;
+            if (allowed instanceof RegExp) return allowed.test(origin);
+            return false;
+        });
         
         if (isAllowed) {
             callback(null, true);
         } else {
-            console.log('❌ CORS blocked: ' + origin);
+            console.log('❌ CORS blocked:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Correlation-ID'],
     credentials: true,
-    maxAge: 86400
+    maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
@@ -144,8 +137,8 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 // LOGGING
 // =====================================================
 
-app.use(function(req, res, next) {
-    console.log('📝 [' + new Date().toISOString() + '] ' + req.method + ' ' + req.url);
+app.use((req, res, next) => {
+    console.log(📝 []  );
     next();
 });
 
@@ -156,32 +149,32 @@ app.use(function(req, res, next) {
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: { success: false, error: 'Too many requests.' }
+    message: { success: false, error: 'Too many requests.' },
 });
 app.use('/api/', limiter);
 
 const paymentLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     max: 10,
-    message: { success: false, error: 'Too many payment attempts.' }
+    message: { success: false, error: 'Too many payment attempts.' },
 });
 
 const callbackLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 20,
-    message: { success: false, error: 'Too many callback requests.' }
+    message: { success: false, error: 'Too many callback requests.' },
 });
 
 // =====================================================
 // HEALTH CHECK
 // =====================================================
 
-app.get('/health', function(req, res) {
+app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
         environment: config.environment,
-        version: '3.0.1'
+        version: '3.0.0'
     });
 });
 
@@ -189,7 +182,7 @@ app.get('/health', function(req, res) {
 // TEST ROUTES
 // =====================================================
 
-app.get('/api/test', function(req, res) {
+app.get('/api/test', (req, res) => {
     res.json({
         success: true,
         message: 'API is working!',
@@ -208,7 +201,7 @@ app.get('/api/test', function(req, res) {
     });
 });
 
-app.get('/api/test/cors', function(req, res) {
+app.get('/api/test/cors', (req, res) => {
     res.json({
         success: true,
         message: 'CORS is working!',
@@ -219,15 +212,15 @@ app.get('/api/test/cors', function(req, res) {
     });
 });
 
-app.get('/api/test/mpesa', async function(req, res) {
+app.get('/api/test/mpesa', async (req, res) => {
     try {
-        var mpesaConfigured = !!(config.mpesaConsumerKey && config.mpesaConsumerSecret);
-        var tokenReceived = false;
-        var tokenError = null;
+        const mpesaConfigured = !!(config.mpesaConsumerKey && config.mpesaConsumerSecret);
+        let tokenReceived = false;
+        let tokenError = null;
         
         if (mpesaConfigured) {
             try {
-                var token = await getMpesaToken();
+                const token = await getMpesaToken();
                 tokenReceived = !!token;
             } catch (e) {
                 tokenError = e.message;
@@ -242,7 +235,7 @@ app.get('/api/test/mpesa', async function(req, res) {
             environment: config.environment,
             isProduction: config.isProduction,
             shortcode: config.mpesaShortcode,
-            callback_url: config.backendUrl + '/api/v1/payments/mpesa/callback'
+            callback_url: ${config.backendUrl}/api/v1/payments/mpesa/callback
         });
     } catch (error) {
         res.status(500).json({
@@ -257,48 +250,41 @@ app.get('/api/test/mpesa', async function(req, res) {
 // =====================================================
 
 function getTimestamp() {
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = String(date.getMonth() + 1).padStart(2, '0');
-    var day = String(date.getDate()).padStart(2, '0');
-    var hours = String(date.getHours()).padStart(2, '0');
-    var minutes = String(date.getMinutes()).padStart(2, '0');
-    var seconds = String(date.getSeconds()).padStart(2, '0');
-    return '' + year + month + day + hours + minutes + seconds;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return ${year};
 }
 
 function formatPhoneNumber(phone) {
-    var cleaned = phone.replace(/\D/g, '');
-    if (cleaned.startsWith('0')) {
-        cleaned = '254' + cleaned.substring(1);
-    } else if (cleaned.startsWith('+254')) {
-        cleaned = cleaned.substring(1);
-    } else if (!cleaned.startsWith('254')) {
-        cleaned = '254' + cleaned;
-    }
+    let cleaned = phone.replace(/\D/g, '');
+    if (cleaned.startsWith('0')) cleaned = '254' + cleaned.substring(1);
+    else if (cleaned.startsWith('+254')) cleaned = cleaned.substring(1);
+    else if (!cleaned.startsWith('254')) cleaned = '254' + cleaned;
     
-    var phoneRegex = /^254[17]\d{8}$/;
-    if (!phoneRegex.test(cleaned)) {
+    if (!/^254[17]\d{8}$/.test(cleaned)) {
         throw new Error('Invalid phone number. Must be a valid Kenyan number');
     }
     return cleaned;
 }
 
 function generateMpesaPassword(shortcode, passkey, timestamp) {
-    var str = '' + shortcode + passkey + timestamp;
+    const str = ${shortcode};
     return Buffer.from(str).toString('base64');
 }
 
 function encryptData(text) {
-    if (!text || !config.jwtSecret) {
-        return text;
-    }
+    if (!text || !config.jwtSecret) return text;
     try {
-        var iv = crypto.randomBytes(16);
-        var salt = crypto.randomBytes(16);
-        var key = crypto.scryptSync(config.jwtSecret, salt, 32);
-        var cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-        var encrypted = cipher.update(text, 'utf8', 'hex');
+        const iv = crypto.randomBytes(16);
+        const salt = crypto.randomBytes(16);
+        const key = crypto.scryptSync(config.jwtSecret, salt, 32);
+        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        let encrypted = cipher.update(text, 'utf8', 'hex');
         encrypted += cipher.final('hex');
         return salt.toString('hex') + ':' + iv.toString('hex') + ':' + encrypted;
     } catch (e) {
@@ -306,34 +292,24 @@ function encryptData(text) {
     }
 }
 
-async function getMpesaToken(retryCount) {
-    if (retryCount === undefined) {
-        retryCount = 3;
-    }
+async function getMpesaToken(retryCount = 3) {
+    if (!config.mpesaConsumerKey || !config.mpesaConsumerSecret) return null;
     
-    if (!config.mpesaConsumerKey || !config.mpesaConsumerSecret) {
-        return null;
-    }
-    
-    for (var attempt = 1; attempt <= retryCount; attempt++) {
+    for (let attempt = 1; attempt <= retryCount; attempt++) {
         try {
-            var auth = Buffer.from(config.mpesaConsumerKey + ':' + config.mpesaConsumerSecret).toString('base64');
-            var response = await axios.get(
+            const auth = Buffer.from(${config.mpesaConsumerKey}:).toString('base64');
+            const response = await axios.get(
                 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
                 { 
-                    headers: { Authorization: 'Basic ' + auth }, 
+                    headers: { Authorization: Basic  }, 
                     timeout: 30000 
                 }
             );
             return response.data.access_token;
         } catch (error) {
-            console.error('M-Pesa token error (attempt ' + attempt + '/' + retryCount + '): ' + error.message);
-            if (attempt === retryCount) {
-                return null;
-            }
-            await new Promise(function(resolve) {
-                setTimeout(resolve, 1000 * attempt);
-            });
+            console.error(M-Pesa token error (attempt /):, error.message);
+            if (attempt === retryCount) return null;
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
     }
     return null;
@@ -343,17 +319,13 @@ async function getMpesaToken(retryCount) {
 // PAYMENT INITIATE
 // =====================================================
 
-app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, res) {
+app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async (req, res) => {
     console.log('🚀 PAYMENT INITIATE ROUTE HIT!');
     
     try {
-        var phoneNumber = req.body.phoneNumber;
-        var amount = Number(req.body.amount);
-        var courseId = req.body.courseId;
-        var userId = req.body.userId || null;
-        var idempotencyKey = req.body.idempotencyKey || uuidv4();
+        const { phoneNumber, amount, courseId, userId, idempotencyKey } = req.body;
         
-        var errors = [];
+        const errors = [];
         if (!phoneNumber) errors.push('Phone number required');
         if (!amount || amount < 1) errors.push('Valid amount required');
         if (!courseId) errors.push('Course ID required');
@@ -362,21 +334,18 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
             return res.status(400).json({ success: false, error: 'Validation failed', details: errors });
         }
         
-        var formattedPhone;
+        let formattedPhone;
         try {
             formattedPhone = formatPhoneNumber(phoneNumber);
         } catch (e) {
             return res.status(400).json({ success: false, error: e.message });
         }
         
-        var courseResult = await supabase
+        const { data: course, error: courseError } = await supabase
             .from('courses')
             .select('*')
             .eq('id', courseId)
             .single();
-        
-        var course = courseResult.data;
-        var courseError = courseResult.error;
         
         if (courseError || !course) {
             return res.status(404).json({ success: false, error: 'Course not found' });
@@ -389,13 +358,12 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
         
         // Idempotency check
         if (idempotencyKey) {
-            var existingResult = await supabase
+            const { data: existing } = await supabase
                 .from('payments')
                 .select('id, status')
                 .eq('idempotency_key', idempotencyKey)
                 .maybeSingle();
             
-            var existing = existingResult.data;
             if (existing) {
                 return res.json({
                     success: true,
@@ -406,55 +374,52 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
             }
         }
         
-        var encryptedPhone = encryptData(formattedPhone);
-        var paymentData = {
-            user_id: userId,
+        const encryptedPhone = encryptData(formattedPhone);
+        const paymentData = {
+            user_id: userId || null,
             course_id: courseId,
             amount: Math.round(amount),
             phone_number_encrypted: encryptedPhone,
             phone_number_hash: crypto.createHash('sha256').update(formattedPhone).digest('hex'),
             checkout_request_id: 'REQ_' + Date.now() + '_' + Math.random().toString(36).substring(7),
-            idempotency_key: idempotencyKey,
+            idempotency_key: idempotencyKey || uuidv4(),
             status: 'pending',
             metadata: { 
                 course_name: course.name,
                 environment: config.environment 
-            }
+            },
         };
         
-        var paymentResult = await supabase
+        const { data: payment, error: paymentError } = await supabase
             .from('payments')
             .insert(paymentData)
             .select()
             .single();
-        
-        var payment = paymentResult.data;
-        var paymentError = paymentResult.error;
         
         if (paymentError) {
             console.error('Payment insert error:', paymentError);
             return res.status(500).json({ success: false, error: 'Failed to create payment' });
         }
         
-        console.log('✅ Payment created: ' + payment.id);
+        console.log('✅ Payment created:', payment.id);
         
         // Try M-Pesa STK Push
-        var mpesaResult = { status: 'skipped', message: 'M-Pesa not configured' };
-        var checkoutRequestId = payment.checkout_request_id;
-        var mpesaSuccess = false;
+        let mpesaResult = { status: 'skipped', message: 'M-Pesa not configured' };
+        let checkoutRequestId = payment.checkout_request_id;
+        let mpesaSuccess = false;
         
         if (config.mpesaConsumerKey && config.mpesaConsumerSecret) {
             try {
-                var token = await getMpesaToken();
+                const token = await getMpesaToken();
                 if (token) {
-                    var timestamp = getTimestamp();
-                    var password = generateMpesaPassword(
+                    const timestamp = getTimestamp();
+                    const password = generateMpesaPassword(
                         config.mpesaShortcode,
                         config.mpesaPasskey,
                         timestamp
                     );
                     
-                    var stkRequest = {
+                    const stkRequest = {
                         BusinessShortCode: config.mpesaShortcode,
                         Password: password,
                         Timestamp: timestamp,
@@ -463,17 +428,17 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
                         PartyA: formattedPhone,
                         PartyB: config.mpesaShortcode,
                         PhoneNumber: formattedPhone,
-                        CallBackURL: config.backendUrl + '/api/v1/payments/mpesa/callback',
-                        AccountReference: 'MEI' + String(courseId).slice(0, 6) + Date.now().toString().slice(-6),
-                        TransactionDesc: 'MEI DRIVE - ' + course.name.slice(0, 20)
+                        CallBackURL: ${config.backendUrl}/api/v1/payments/mpesa/callback,
+                        AccountReference: MEI,
+                        TransactionDesc: MEI DRIVE - ,
                     };
                     
-                    var mpesaResponse = await axios.post(
+                    const mpesaResponse = await axios.post(
                         'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
                         stkRequest,
                         {
-                            headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-                            timeout: 35000
+                            headers: { Authorization: Bearer , 'Content-Type': 'application/json' },
+                            timeout: 35000,
                         }
                     );
                     
@@ -494,7 +459,7 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
                             })
                             .eq('id', payment.id);
                     } else {
-                        var failReason = mpesaResponse.data.ResponseDescription || 'STK Push failed';
+                        const failReason = mpesaResponse.data.ResponseDescription || 'STK Push failed';
                         mpesaResult = { status: 'failed', error: failReason };
                         
                         await supabase
@@ -513,7 +478,7 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
             }
         }
         
-        var finalStatus = mpesaSuccess ? 'processing' : payment.status;
+        const finalStatus = mpesaSuccess ? 'processing' : payment.status;
         
         res.json({
             success: true,
@@ -522,7 +487,7 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
             amount: payment.amount,
             status: finalStatus,
             mpesa: mpesaResult,
-            message: mpesaResult.status === 'sent' ? 'STK Push sent.' : 'Payment created.'
+            message: mpesaResult.status === 'sent' ? 'STK Push sent.' : 'Payment created.',
         });
         
     } catch (error) {
@@ -538,41 +503,31 @@ app.post('/api/v1/payments/mpesa/initiate', paymentLimiter, async function(req, 
 // M-PESA CALLBACK
 // =====================================================
 
-app.post('/api/v1/payments/mpesa/callback', callbackLimiter, async function(req, res) {
+app.post('/api/v1/payments/mpesa/callback', callbackLimiter, async (req, res) => {
     console.log('📞 M-Pesa callback received');
     
     try {
-        var Body = req.body.Body;
+        const { Body } = req.body;
         if (!Body || !Body.stkCallback) {
             return res.json({ ResultCode: 0, ResultDesc: 'Success' });
         }
         
-        var CheckoutRequestID = Body.stkCallback.CheckoutRequestID;
-        var ResultCode = Body.stkCallback.ResultCode;
-        var ResultDesc = Body.stkCallback.ResultDesc;
-        var CallbackMetadata = Body.stkCallback.CallbackMetadata;
+        const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
         
-        var paymentResult = await supabase
+        const { data: payment } = await supabase
             .from('payments')
             .select('*')
             .eq('checkout_request_id', CheckoutRequestID)
             .single();
         
-        var payment = paymentResult.data;
         if (!payment) {
             console.log('⚠️ Payment not found:', CheckoutRequestID);
             return res.json({ ResultCode: 0, ResultDesc: 'Success' });
         }
         
         if (ResultCode === 0 && CallbackMetadata) {
-            var items = CallbackMetadata.Item || [];
-            var receiptNumber = null;
-            for (var i = 0; i < items.length; i++) {
-                if (items[i].Name === 'MpesaReceiptNumber') {
-                    receiptNumber = items[i].Value;
-                    break;
-                }
-            }
+            const items = CallbackMetadata.Item || [];
+            const receiptNumber = items.find(i => i.Name === 'MpesaReceiptNumber')?.Value;
             
             console.log('✅ Payment successful:', receiptNumber);
             
@@ -587,14 +542,13 @@ app.post('/api/v1/payments/mpesa/callback', callbackLimiter, async function(req,
                 .eq('id', payment.id);
             
             // Check for existing enrollment
-            var enrollmentResult = await supabase
+            const { data: existingEnrollment } = await supabase
                 .from('enrollments')
                 .select('id')
                 .eq('user_id', payment.user_id)
                 .eq('course_id', payment.course_id)
                 .maybeSingle();
             
-            var existingEnrollment = enrollmentResult.data;
             if (!existingEnrollment) {
                 await supabase
                     .from('enrollments')
@@ -637,17 +591,16 @@ app.post('/api/v1/payments/mpesa/callback', callbackLimiter, async function(req,
 // PAYMENT STATUS
 // =====================================================
 
-app.get('/api/v1/payments/status/:checkoutRequestID', async function(req, res) {
+app.get('/api/v1/payments/status/:checkoutRequestID', async (req, res) => {
     try {
-        var checkoutRequestID = req.params.checkoutRequestID;
+        const { checkoutRequestID } = req.params;
         
-        var paymentResult = await supabase
+        const { data: payment } = await supabase
             .from('payments')
             .select('id, amount, status, transaction_id, mpesa_receipt, created_at, completed_at, failure_reason')
             .eq('checkout_request_id', checkoutRequestID)
             .single();
         
-        var payment = paymentResult.data;
         if (!payment) {
             return res.status(404).json({ success: false, error: 'Payment not found' });
         }
@@ -662,8 +615,8 @@ app.get('/api/v1/payments/status/:checkoutRequestID', async function(req, res) {
                 mpesa_receipt: payment.mpesa_receipt,
                 created_at: payment.created_at,
                 completed_at: payment.completed_at,
-                failure_reason: payment.failure_reason
-            }
+                failure_reason: payment.failure_reason,
+            },
         });
         
     } catch (error) {
@@ -676,12 +629,12 @@ app.get('/api/v1/payments/status/:checkoutRequestID', async function(req, res) {
 // 404 HANDLER
 // =====================================================
 
-app.use(function(req, res) {
+app.use((req, res) => {
     console.log('❌ 404 Not Found:', req.method, req.url);
     res.status(404).json({
         success: false,
         error: 'Endpoint not found',
-        path: req.path
+        path: req.path,
     });
 });
 
@@ -689,11 +642,11 @@ app.use(function(req, res) {
 // ERROR HANDLER
 // =====================================================
 
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
     console.error('❌ Error:', err);
     res.status(500).json({
         success: false,
-        error: config.isProduction ? 'Internal server error' : err.message
+        error: config.isProduction ? 'Internal server error' : err.message,
     });
 });
 
@@ -701,43 +654,43 @@ app.use(function(err, req, res, next) {
 // START SERVER
 // =====================================================
 
-var server = app.listen(PORT, '0.0.0.0', function() {
-    console.log('');
-    console.log('╔═══════════════════════════════════════════════════════════════════╗');
-    console.log('║                                                                   ║');
-    console.log('║     🚗 MEI DRIVE AFRICA - PAYMENT SYSTEM                         ║');
-    console.log('║     ✅ RUNNING v3.0.1                                            ║');
-    console.log('║     📡 Port: ' + PORT + '                                               ║');
-    console.log('║     🌍 Environment: ' + config.environment + '                         ║');
-    console.log('║     🏭 Production: ' + config.isProduction + '                          ║');
-    console.log('║     💳 M-Pesa: ✅ Configured (' + config.mpesaShortcode + ')          ║');
-    console.log('║     📦 Supabase: ✅ Connected                                    ║');
-    console.log('║                                                                   ║');
-    console.log('║     📋 Health: GET /health                                       ║');
-    console.log('║     💰 Initiate: POST /api/v1/payments/mpesa/initiate            ║');
-    console.log('║     📞 Callback: POST /api/v1/payments/mpesa/callback            ║');
-    console.log('║     🔍 Status: GET /api/v1/payments/status/:checkoutRequestID    ║');
-    console.log('║     ✅ Test: GET /api/test                                       ║');
-    console.log('║                                                                   ║');
-    console.log('╚═══════════════════════════════════════════════════════════════════╝');
-    console.log('');
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║     🚗 MEI DRIVE AFRICA - PAYMENT SYSTEM                         ║
+║     ✅ RUNNING v3.0.0                                            ║
+║     📡 Port:                                                ║
+║     🌍 Environment:                          ║
+║     🏭 Production:                          ║
+║     💳 M-Pesa: ✅ Configured ()          ║
+║     📦 Supabase: ✅ Connected                                    ║
+║                                                                   ║
+║     📋 Health: GET /health                                       ║
+║     💰 Initiate: POST /api/v1/payments/mpesa/initiate            ║
+║     📞 Callback: POST /api/v1/payments/mpesa/callback            ║
+║     🔍 Status: GET /api/v1/payments/status/:checkoutRequestID    ║
+║     ✅ Test: GET /api/test                                       ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+    );
 });
 
 // =====================================================
 // GRACEFUL SHUTDOWN
 // =====================================================
 
-process.on('SIGTERM', function() {
+process.on('SIGTERM', () => {
     console.log('🛑 SIGTERM received, shutting down gracefully...');
-    server.close(function() {
+    server.close(() => {
         console.log('✅ Server closed');
         process.exit(0);
     });
 });
 
-process.on('SIGINT', function() {
+process.on('SIGINT', () => {
     console.log('🛑 SIGINT received, shutting down gracefully...');
-    server.close(function() {
+    server.close(() => {
         console.log('✅ Server closed');
         process.exit(0);
     });
