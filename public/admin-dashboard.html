@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | MEI DRIVE AFRICA</title>
+    
+    <!-- ===== FAVICON ===== -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGrSURBVHgB7VdLjsIwDDWNQOyKD5WwQd2wZ8EOsStnUWBYMEhQqX8lKvXpJGrlpZN2Ho6dxBOw2Ww2my/AJNurZdl/jmFd1zZ5yI+ygk+UD8d2yfL5gB8gWdd1+jAMoP0fSpIkhCFx1es5v/+yEOi67hCGIYwgiqKk67oX+AjGcRwf8CfwwjRNs5hhaZpmL8gFEo7j+C+P44CZ/6wsy08ulzAMQwjDMN+CIHhGm9frBZqm2R3H8ZeWZT0mSfJGlmUx+GEYhjeoG0IhHMcJqqpKMQxjuJPlF7Isy5FyHMffwzCMw3EcYBjG/zHGkGVZMAxD0DRtMQzDv+M4fgUhboL2lUIIMRLFccxtNpsN6SNZliVMCBGGIee2YZp1BBsFQRAy9nK5RM/nU3H7y+VyS9M0h8MhYYJhGMLv9wu2+QUi0ul0QlnTNB+M8ZcofRiGlIqi4LIsUz4ej5zf7/cTTiRJQtfrlc+Y+Q+hmWlZlhTOsvnFGIu+70PEfTweVItzHMdxFEUR3e93evr7/ULZ7/dLqZqm4XQ6hWma0vF4/DcAEdlRg+2X/IIAAAAASUVORK5CYII=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Cpath d='M50 20 L68 35 L62 35 L50 27 L38 35 L32 35 L50 20Z' fill='%2300ff88'/%3E%3Cpath d='M34 42 L66 42 L66 48 L34 48 Z' fill='%2300ff88'/%3E%3Cpath d='M36 50 L64 50 L60 80 L40 80 L36 50Z' fill='%2300ff88' opacity='0.85'/%3E%3Ccircle cx='50' cy='64' r='6' fill='%230a192f'/%3E%3Ctext x='50' y='84' font-size='12' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js">
@@ -370,7 +376,6 @@
                 const { data: { session } } = await supabase.auth.getSession();
                 
                 if (!session) {
-                    // Check if we're already on the login page
                     if (!window.location.pathname.includes('admin-login.html')) {
                         window.location.href = 'admin-login.html';
                     }
@@ -379,7 +384,6 @@
                 
                 currentUser = session.user;
 
-                // Check if user is admin
                 const { data: profile } = await supabase
                     .from('user_profiles')
                     .select('is_admin')
