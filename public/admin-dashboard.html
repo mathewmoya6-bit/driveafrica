@@ -18,6 +18,7 @@
             font-family: 'Inter', sans-serif;
             background: #0a192f;
             color: #fff;
+            min-height: 100vh;
         }
         :root {
             --primary: #00ff88;
@@ -44,6 +45,14 @@
         .logo {
             font-size: 1.3rem;
             font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), #00cc66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+        .logo a {
+            text-decoration: none;
             background: linear-gradient(135deg, var(--primary), #00cc66);
             -webkit-background-clip: text;
             background-clip: text;
@@ -145,6 +154,19 @@
             background: linear-gradient(135deg, var(--primary), #00cc66);
             color: #0a192f;
         }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
         .modal {
             display: none;
             position: fixed;
@@ -180,6 +202,10 @@
             border-radius: 12px;
             color: white;
         }
+        .modal-content button {
+            margin-right: 10px;
+            margin-top: 10px;
+        }
         .search-box {
             background: #0f1a2c;
             border: 1px solid var(--border);
@@ -190,16 +216,39 @@
             color: white;
             margin-bottom: 1rem;
         }
-        .toast {
+        .toast-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
+            z-index: 1100;
+        }
+        .toast {
             background: var(--card-bg);
             border-left: 4px solid var(--primary);
             padding: 12px 20px;
             border-radius: 12px;
-            z-index: 1100;
+            margin-top: 8px;
             animation: slideIn 0.3s ease;
+        }
+        .toast-error {
+            border-left-color: var(--danger);
+        }
+        .toast-success {
+            border-left-color: #28a745;
+        }
+        .view-site-btn {
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .view-site-btn:hover {
+            background: rgba(0, 255, 136, 0.25);
         }
         @keyframes slideIn {
             from {
@@ -218,17 +267,31 @@
             table {
                 font-size: 12px;
             }
+            .navbar {
+                padding: 0.8rem 1rem;
+            }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #8899aa;
         }
     </style>
 </head>
 <body>
     <div id="app"></div>
-    <div id="toast-container"></div>
+    <div id="toast-container" class="toast-container"></div>
 
     <script>
         const SUPABASE_URL = 'https://qpqkmmkrzxlhcpccefjn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFwcWttbWtyenhsaGNwY2NlZmpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjU0NzIsImV4cCI6MjA5NTEwMTQ3Mn0.Vw1hexN3NKoF_y9VFBFs_NUhJgFNNMwuyzDjImUcM6s';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
 
         let currentUser = null;
         let isAdmin = false;
@@ -241,20 +304,30 @@
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `${type === 'success' ? '✅' : '❌'} ${msg}`;
+            const typeClass = type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : '';
+            toast.className = `toast ${typeClass}`;
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            toast.innerHTML = `${icon} ${msg}`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
+            return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m]));
         }
 
-        // ---------- realtime subscriptions (production-ready) ----------
+        function safeNumber(val) {
+            return (val !== null && val !== undefined && !isNaN(val)) ? val : 0;
+        }
+
+        function formatCurrency(amount) {
+            const num = safeNumber(amount);
+            return num.toLocaleString('en-KE');
+        }
+
+        // ---------- realtime subscriptions ----------
         function subscribeRealtime() {
-            // courses channel
             const coursesChannel = supabase
                 .channel('courses-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'courses' }, async () => {
@@ -263,7 +336,6 @@
                 })
                 .subscribe();
 
-            // enrollments channel (for payments / revenue updates)
             const enrollChannel = supabase
                 .channel('enrollments-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'enrollments' }, async () => {
@@ -273,7 +345,6 @@
                 })
                 .subscribe();
 
-            // quiz questions channel
             const quizChannel = supabase
                 .channel('quiz-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_questions' }, async () => {
@@ -282,7 +353,6 @@
                 })
                 .subscribe();
 
-            // users channel (admin toggle etc.)
             const usersChannel = supabase
                 .channel('users-realtime')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'user_profiles' }, async () => {
@@ -291,60 +361,86 @@
                 })
                 .subscribe();
 
-            // store channels for cleanup if needed
             window._channels = [coursesChannel, enrollChannel, quizChannel, usersChannel];
         }
 
         // ---------- init ----------
         async function init() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { window.location.href = 'admin-login.html'; return; }
-            currentUser = session.user;
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Check if we're already on the login page
+                    if (!window.location.pathname.includes('admin-login.html')) {
+                        window.location.href = 'admin-login.html';
+                    }
+                    return;
+                }
+                
+                currentUser = session.user;
 
-            const { data: profile } = await supabase.from('user_profiles').select('is_admin').eq('id', currentUser.id)
-                .maybeSingle();
-            if (!profile?.is_admin && currentUser.email !== 'admin@meidriveafrica.com') {
-                await supabase.auth.signOut();
-                window.location.href = 'admin-login.html';
-                return;
+                // Check if user is admin
+                const { data: profile } = await supabase
+                    .from('user_profiles')
+                    .select('is_admin')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
+                    
+                if (!profile?.is_admin && currentUser.email !== 'admin@meidriveafrica.com') {
+                    await supabase.auth.signOut();
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+                
+                isAdmin = true;
+                await loadData();
+                renderDashboard();
+                subscribeRealtime();
+            } catch (error) {
+                console.error('Init error:', error);
+                showToast('Error initializing dashboard', 'error');
             }
-            isAdmin = true;
-            await loadData();
-            renderDashboard();
-            // enable realtime
-            subscribeRealtime();
         }
 
         async function loadData() {
-            const [coursesRes, usersRes, enrollRes, quizRes] = await Promise.all([
-                supabase.from('courses').select('*').order('id'),
-                supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
-                supabase.from('enrollments').select('*, user_profiles(email), courses(name)').order('enrolled_at', {
-                    ascending: false
-                }),
-                supabase.from('quiz_questions').select('*')
-            ]);
-            courses = coursesRes.data || [];
-            users = usersRes.data || [];
-            enrollments = enrollRes.data || [];
-            quizQuestions = quizRes.data || [];
+            try {
+                const [coursesRes, usersRes, enrollRes, quizRes] = await Promise.all([
+                    supabase.from('courses').select('*').order('id'),
+                    supabase.from('user_profiles').select('*').order('created_at', { ascending: false }),
+                    supabase.from('enrollments').select('*, user_profiles(email), courses(name)').order('enrolled_at', {
+                        ascending: false
+                    }),
+                    supabase.from('quiz_questions').select('*')
+                ]);
+                courses = coursesRes.data || [];
+                users = usersRes.data || [];
+                enrollments = enrollRes.data || [];
+                quizQuestions = quizRes.data || [];
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            }
         }
 
         // ---------- render ----------
         async function renderDashboard() {
-            const totalRevenue = enrollments.reduce((sum, e) => sum + (e.amount_paid || 0), 0);
+            const totalRevenue = enrollments.reduce((sum, e) => sum + safeNumber(e.amount_paid), 0);
+            
             document.getElementById('app').innerHTML = `
             <div class="navbar">
-                <div class="logo">MEI DRIVE ADMIN</div>
-                <div><span style="color:var(--primary);">${escapeHtml(currentUser.email)}</span>
-                <button onclick="logout()" style="background:transparent; border:1px solid var(--border); color:white; padding:8px 16px; border-radius:8px; margin-left:10px; cursor:pointer;">Logout</button></div>
+                <div class="logo"><a href="index.html">MEI DRIVE ADMIN</a></div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <a href="index.html" class="view-site-btn"><i class="fas fa-external-link-alt"></i> View Site</a>
+                    <span style="color:var(--primary);font-size:0.9rem;">${escapeHtml(currentUser.email)}</span>
+                    <button onclick="logout()" class="btn-outline">Logout</button>
+                </div>
             </div>
             <div class="container">
                 <div class="stats-grid">
                     <div class="stat-card" onclick="setTab('users')"><div class="stat-number">${users.length}</div><div>👥 Users</div></div>
                     <div class="stat-card" onclick="setTab('courses')"><div class="stat-number">${courses.length}</div><div>📚 Courses</div></div>
                     <div class="stat-card" onclick="setTab('enrollments')"><div class="stat-number">${enrollments.length}</div><div>📋 Enrollments</div></div>
-                    <div class="stat-card" onclick="setTab('payments')"><div class="stat-number">KES ${totalRevenue.toLocaleString()}</div><div>💰 Revenue</div></div>
+                    <div class="stat-card" onclick="setTab('payments')"><div class="stat-number">KES ${formatCurrency(totalRevenue)}</div><div>💰 Revenue</div></div>
                     <div class="stat-card" onclick="setTab('quiz')"><div class="stat-number">${quizQuestions.length}</div><div>❓ Quiz</div></div>
                 </div>
                 <div class="tabs">
@@ -363,20 +459,22 @@
 
         async function loadTabContent() {
             const container = document.getElementById('tabContent');
+            if (!container) return;
+            
             if (currentTab === 'dashboard') {
-                container.innerHTML = `<div class="card"><h2><i class="fas fa-chart-line"></i> Recent Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.slice(0, 10).map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${e.amount_paid > 0 ? `KES ${e.amount_paid}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleDateString()}</td></tr>`).join('') || '<tr><td colspan="4">No enrollments</td></tr>'}</tbody></table></div></div>`;
+                container.innerHTML = `<div class="card"><h2><i class="fas fa-chart-line"></i> Recent Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.slice(0, 10).map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${safeNumber(e.amount_paid) > 0 ? `KES ${formatCurrency(e.amount_paid)}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleDateString()}</td></tr>`).join('') || '<tr><td colspan="4" class="empty-state">No enrollments yet</td></tr>'}</tbody></table></div></div>`;
             } else if (currentTab === 'courses') {
-                container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2><i class="fas fa-book"></i> Manage Courses</h2><button class="btn-sm btn-primary" onclick="showAddCourseModal()">+ Add Course</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Duration</th><th>Actions</th></tr></thead><tbody>${courses.map(c => `<tr><td>${c.id}</td><td>${escapeHtml(c.name)}</td><td>KES ${c.price?.toLocaleString() || 0}</td><td>${escapeHtml(c.duration || '-')}</td><td><button class="btn-sm btn-warning" onclick="editCourse(${c.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteCourse(${c.id})">Del</button></td></tr>`).join('') || '<tr><td colspan="5">No courses</td></tr>'}</tbody></table></div></div>`;
+                container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:10px;"><h2><i class="fas fa-book"></i> Manage Courses</h2><button class="btn-sm btn-primary" onclick="showAddCourseModal()">+ Add Course</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Duration</th><th>Actions</th></tr></thead><tbody>${courses.length > 0 ? courses.map(c => `<tr><td>${c.id}</td><td>${escapeHtml(c.name)}</td><td>KES ${formatCurrency(c.price)}</td><td>${escapeHtml(c.duration || '-')}</td><td><button class="btn-sm btn-warning" onclick="editCourse(${c.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteCourse(${c.id})">Del</button></td></tr>`).join('') : '<tr><td colspan="5" class="empty-state">No courses available</td></tr>'}</tbody></table></div></div>`;
             } else if (currentTab === 'users') {
-                container.innerHTML = `<div class="card"><h2><i class="fas fa-users"></i> Manage Users</h2><input type="text" class="search-box" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()"><div style="overflow-x:auto;"><table id="usersTable"><thead><tr><th>Email</th><th>Name</th><th>Admin</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.map(u => `<tr data-email="${escapeHtml(u.email).toLowerCase()}"><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.full_name || '-')}</td><td>${u.is_admin ? '✅ Admin' : '👤 User'}</td><td>${new Date(u.created_at).toLocaleDateString()}</td><td><button class="btn-sm btn-warning" onclick="toggleAdmin('${u.id}', ${!u.is_admin})">${u.is_admin ? 'Remove Admin' : 'Make Admin'}</button></td></tr>`).join('') || '<tr><td colspan="5">No users</td></tr>'}</tbody></table></div></div>`;
+                container.innerHTML = `<div class="card"><h2><i class="fas fa-users"></i> Manage Users</h2><input type="text" class="search-box" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()"><div style="overflow-x:auto;"><table id="usersTable"><thead><tr><th>Email</th><th>Name</th><th>Admin</th><th>Joined</th><th>Actions</th></tr></thead><tbody>${users.length > 0 ? users.map(u => `<tr data-email="${escapeHtml(u.email).toLowerCase()}"><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.full_name || '-')}</td><td>${u.is_admin ? '✅ Admin' : '👤 User'}</td><td>${new Date(u.created_at).toLocaleDateString()}</td><td><button class="btn-sm btn-warning" onclick="toggleAdmin('${u.id}', ${!u.is_admin})">${u.is_admin ? 'Remove Admin' : 'Make Admin'}</button></td></tr>`).join('') : '<tr><td colspan="5" class="empty-state">No users found</td></tr>'}</tbody></table></div></div>`;
             } else if (currentTab === 'enrollments') {
-                container.innerHTML = `<div class="card"><h2><i class="fas fa-list"></i> All Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${e.amount_paid > 0 ? `KES ${e.amount_paid}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="4">No enrollments</td></tr>'}</tbody></table></div></div>`;
+                container.innerHTML = `<div class="card"><h2><i class="fas fa-list"></i> All Enrollments</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Date</th></tr></thead><tbody>${enrollments.length > 0 ? enrollments.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>${safeNumber(e.amount_paid) > 0 ? `KES ${formatCurrency(e.amount_paid)}` : 'FREE'}</td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') : '<tr><td colspan="4" class="empty-state">No enrollments</td></tr>'}</tbody></table></div></div>`;
             } else if (currentTab === 'payments') {
-                const paid = enrollments.filter(e => e.amount_paid > 0);
-                const total = paid.reduce((s, e) => s + e.amount_paid, 0);
-                container.innerHTML = `<div class="card"><h2><i class="fas fa-credit-card"></i> Payment Summary</h2><div class="stats-grid" style="margin-bottom:1rem;"><div class="stat-card"><div class="stat-number">${paid.length}</div><div>Paid Enrollments</div></div><div class="stat-card"><div class="stat-number">KES ${total.toLocaleString()}</div><div>Total Revenue</div></div></div><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Transaction ID</th><th>Date</th></tr></thead><tbody>${paid.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>KES ${e.amount_paid}</td><td><code>${escapeHtml(e.transaction_id || '-')}</code></td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') || '<tr><td colspan="5">No payments</td></tr>'}</tbody></table></div></div>`;
+                const paid = enrollments.filter(e => safeNumber(e.amount_paid) > 0);
+                const total = paid.reduce((s, e) => s + safeNumber(e.amount_paid), 0);
+                container.innerHTML = `<div class="card"><h2><i class="fas fa-credit-card"></i> Payment Summary</h2><div class="stats-grid" style="margin-bottom:1rem;"><div class="stat-card"><div class="stat-number">${paid.length}</div><div>Paid Enrollments</div></div><div class="stat-card"><div class="stat-number">KES ${formatCurrency(total)}</div><div>Total Revenue</div></div></div><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Course</th><th>Amount</th><th>Transaction ID</th><th>Date</th></tr></thead><tbody>${paid.length > 0 ? paid.map(e => `<tr><td>${escapeHtml(e.user_profiles?.email || 'N/A')}</td><td>${escapeHtml(e.courses?.name || 'N/A')}</td><td>KES ${formatCurrency(e.amount_paid)}</td><td><code>${escapeHtml(e.transaction_id || '-')}</code></td><td>${new Date(e.enrolled_at).toLocaleString()}</td></tr>`).join('') : '<tr><td colspan="5" class="empty-state">No payments recorded</td></tr>'}</tbody></table></div></div>`;
             } else if (currentTab === 'quiz') {
-                container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2><i class="fas fa-question-circle"></i> Quiz Questions</h2><button class="btn-sm btn-primary" onclick="showAddQuestionModal()">+ Add Question</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Category</th><th>Question</th><th>Actions</th></tr></thead><tbody>${quizQuestions.map(q => `<tr><td>${q.id}</td><td>${escapeHtml(q.category || 'General')}</td><td>${escapeHtml(q.question?.substring(0, 60))}...</td><td><button class="btn-sm btn-warning" onclick="editQuestion(${q.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteQuestion(${q.id})">Del</button></td></tr>`).join('') || '<tr><td colspan="4">No questions</td></tr>'}</tbody></table></div></div>`;
+                container.innerHTML = `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:10px;"><h2><i class="fas fa-question-circle"></i> Quiz Questions</h2><button class="btn-sm btn-primary" onclick="showAddQuestionModal()">+ Add Question</button></div><div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Category</th><th>Question</th><th>Actions</th></tr></thead><tbody>${quizQuestions.length > 0 ? quizQuestions.map(q => `<tr><td>${q.id}</td><td>${escapeHtml(q.category || 'General')}</td><td>${escapeHtml((q.question || '').substring(0, 60))}...</td><td><button class="btn-sm btn-warning" onclick="editQuestion(${q.id})">Edit</button><button class="btn-sm btn-danger" onclick="deleteQuestion(${q.id})">Del</button></td></tr>`).join('') : '<tr><td colspan="4" class="empty-state">No questions added yet</td></tr>'}</tbody></table></div></div>`;
             }
         }
 
@@ -385,118 +483,174 @@
             renderDashboard(); };
         window.filterUsers = () => {
             const s = document.getElementById('userSearch')?.value.toLowerCase();
-            document.querySelectorAll('#usersTable tbody tr').forEach(r => r.style.display = r.dataset.email?.includes(s ||
-                '') ? '' : 'none');
+            document.querySelectorAll('#usersTable tbody tr').forEach(r => {
+                const email = r.dataset.email || '';
+                r.style.display = email.includes(s || '') ? '' : 'none';
+            });
         };
 
-        // ----- Course CRUD (realtime via subscription) -----
+        // ----- Course CRUD -----
         window.showAddCourseModal = () => {
-            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Add Course</h2><input type="text" id="courseName" placeholder="Name"><input type="number" id="coursePrice" placeholder="Price"><input type="text" id="courseDuration" placeholder="Duration"><input type="text" id="courseIcon" placeholder="Icon" value="fa-book"><button class="btn-primary" onclick="saveCourse()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`);
+            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Add Course</h2><input type="text" id="courseName" placeholder="Name" required><input type="number" id="coursePrice" placeholder="Price" value="0" min="0"><input type="text" id="courseDuration" placeholder="Duration"><input type="text" id="courseIcon" placeholder="Icon" value="fa-book"><button class="btn-primary" onclick="saveCourse()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`);
         };
         window.saveCourse = async () => {
-            const { data: maxId } = await supabase.from('courses').select('id').order('id', { ascending: false })
-                .limit(1);
-            const newId = (maxId?.[0]?.id || 0) + 1;
-            await supabase.from('courses').insert({
-                id: newId,
-                name: document.getElementById('courseName').value,
-                price: parseInt(document.getElementById('coursePrice').value),
-                duration: document.getElementById('courseDuration').value,
-                icon: document.getElementById('courseIcon').value
-            });
-            showToast('Course added', 'success');
-            closeModal();
-            await loadData();
-            renderDashboard();
+            const name = document.getElementById('courseName').value.trim();
+            if (!name) { showToast('Please enter a course name', 'error'); return; }
+            try {
+                const { data: maxId } = await supabase.from('courses').select('id').order('id', { ascending: false })
+                    .limit(1);
+                const newId = (maxId?.[0]?.id || 0) + 1;
+                await supabase.from('courses').insert({
+                    id: newId,
+                    name: name,
+                    price: parseInt(document.getElementById('coursePrice').value) || 0,
+                    duration: document.getElementById('courseDuration').value.trim() || null,
+                    icon: document.getElementById('courseIcon').value.trim() || 'fa-book'
+                });
+                showToast('Course added successfully', 'success');
+                closeModal();
+                await loadData();
+                renderDashboard();
+            } catch (error) {
+                showToast('Error adding course: ' + error.message, 'error');
+            }
         };
         window.editCourse = async (id) => {
             const c = courses.find(c => c.id === id);
-            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Edit Course</h2><input type="text" id="courseName" value="${escapeHtml(c.name)}"><input type="number" id="coursePrice" value="${c.price}"><input type="text" id="courseDuration" value="${escapeHtml(c.duration || '')}"><input type="text" id="courseIcon" value="${escapeHtml(c.icon || 'fa-book')}"><button class="btn-primary" onclick="updateCourse(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`);
+            if (!c) { showToast('Course not found', 'error'); return; }
+            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="courseModal"><div class="modal-content"><h2>Edit Course</h2><input type="text" id="courseName" value="${escapeHtml(c.name)}" required><input type="number" id="coursePrice" value="${safeNumber(c.price)}" min="0"><input type="text" id="courseDuration" value="${escapeHtml(c.duration || '')}"><input type="text" id="courseIcon" value="${escapeHtml(c.icon || 'fa-book')}"><button class="btn-primary" onclick="updateCourse(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`);
         };
         window.updateCourse = async (id) => {
-            await supabase.from('courses').update({
-                name: document.getElementById('courseName').value,
-                price: parseInt(document.getElementById('coursePrice').value),
-                duration: document.getElementById('courseDuration').value,
-                icon: document.getElementById('courseIcon').value
-            }).eq('id', id);
-            showToast('Course updated', 'success');
-            closeModal();
-            await loadData();
-            renderDashboard();
-        };
-        window.deleteCourse = async (id) => {
-            if (confirm('Delete course?')) {
-                await supabase.from('courses').delete().eq('id', id);
-                showToast('Deleted', 'success');
+            const name = document.getElementById('courseName').value.trim();
+            if (!name) { showToast('Please enter a course name', 'error'); return; }
+            try {
+                await supabase.from('courses').update({
+                    name: name,
+                    price: parseInt(document.getElementById('coursePrice').value) || 0,
+                    duration: document.getElementById('courseDuration').value.trim() || null,
+                    icon: document.getElementById('courseIcon').value.trim() || 'fa-book'
+                }).eq('id', id);
+                showToast('Course updated successfully', 'success');
+                closeModal();
                 await loadData();
                 renderDashboard();
+            } catch (error) {
+                showToast('Error updating course: ' + error.message, 'error');
+            }
+        };
+        window.deleteCourse = async (id) => {
+            if (confirm('Delete this course?')) {
+                try {
+                    await supabase.from('courses').delete().eq('id', id);
+                    showToast('Course deleted', 'success');
+                    await loadData();
+                    renderDashboard();
+                } catch (error) {
+                    showToast('Error deleting course: ' + error.message, 'error');
+                }
             }
         };
 
         // ----- Users admin toggle -----
         window.toggleAdmin = async (uid, make) => {
-            await supabase.from('user_profiles').update({ is_admin: make }).eq('id', uid);
-            showToast(`User ${make ? 'is now admin' : 'admin removed'}`, 'success');
-            await loadData();
-            renderDashboard();
+            try {
+                await supabase.from('user_profiles').update({ is_admin: make }).eq('id', uid);
+                showToast(`User ${make ? 'is now admin' : 'admin removed'}`, 'success');
+                await loadData();
+                renderDashboard();
+            } catch (error) {
+                showToast('Error updating user: ' + error.message, 'error');
+            }
         };
 
         // ----- Quiz CRUD -----
         window.showAddQuestionModal = () => {
-            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Add Question</h2><select id="qCategory"><option>Road Signs</option><option>Highway Code</option><option>Defensive Driving</option><option>Traffic Rules</option></select><textarea id="qText" placeholder="Question" rows="2"></textarea><input type="text" id="optA" placeholder="Option A"><input type="text" id="optB" placeholder="Option B"><input type="text" id="optC" placeholder="Option C"><input type="text" id="optD" placeholder="Option D"><select id="correctOpt"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select><textarea id="qExplanation" placeholder="Explanation" rows="2"></textarea><button class="btn-primary" onclick="saveQuestion()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`);
+            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Add Question</h2><select id="qCategory"><option>Road Signs</option><option>Highway Code</option><option>Defensive Driving</option><option>Traffic Rules</option></select><textarea id="qText" placeholder="Question" rows="2" required></textarea><input type="text" id="optA" placeholder="Option A" required><input type="text" id="optB" placeholder="Option B" required><input type="text" id="optC" placeholder="Option C" required><input type="text" id="optD" placeholder="Option D" required><select id="correctOpt"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select><textarea id="qExplanation" placeholder="Explanation" rows="2"></textarea><button class="btn-primary" onclick="saveQuestion()">Save</button><button onclick="closeModal()">Cancel</button></div></div>`);
         };
         window.saveQuestion = async () => {
-            await supabase.from('quiz_questions').insert({
-                category: document.getElementById('qCategory').value,
-                question: document.getElementById('qText').value,
-                option_a: document.getElementById('optA').value,
-                option_b: document.getElementById('optB').value,
-                option_c: document.getElementById('optC').value,
-                option_d: document.getElementById('optD').value,
-                correct_option: parseInt(document.getElementById('correctOpt').value),
-                explanation: document.getElementById('qExplanation').value
-            });
-            showToast('Question added', 'success');
-            closeModal();
-            await loadData();
-            renderDashboard();
+            const question = document.getElementById('qText').value.trim();
+            if (!question) { showToast('Please enter a question', 'error'); return; }
+            try {
+                await supabase.from('quiz_questions').insert({
+                    category: document.getElementById('qCategory').value,
+                    question: question,
+                    option_a: document.getElementById('optA').value.trim(),
+                    option_b: document.getElementById('optB').value.trim(),
+                    option_c: document.getElementById('optC').value.trim(),
+                    option_d: document.getElementById('optD').value.trim(),
+                    correct_option: parseInt(document.getElementById('correctOpt').value),
+                    explanation: document.getElementById('qExplanation').value.trim() || null
+                });
+                showToast('Question added successfully', 'success');
+                closeModal();
+                await loadData();
+                renderDashboard();
+            } catch (error) {
+                showToast('Error adding question: ' + error.message, 'error');
+            }
         };
         window.editQuestion = async (id) => {
             const q = quizQuestions.find(q => q.id === id);
-            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Edit Question</h2><select id="qCategory">${['Road Signs','Highway Code','Defensive Driving','Traffic Rules'].map(c => `<option ${q.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select><textarea id="qText" rows="2">${escapeHtml(q.question)}</textarea><input type="text" id="optA" value="${escapeHtml(q.option_a)}"><input type="text" id="optB" value="${escapeHtml(q.option_b)}"><input type="text" id="optC" value="${escapeHtml(q.option_c)}"><input type="text" id="optD" value="${escapeHtml(q.option_d)}"><select id="correctOpt"><option value="0" ${q.correct_option === 0 ? 'selected' : ''}>A</option><option value="1" ${q.correct_option === 1 ? 'selected' : ''}>B</option><option value="2" ${q.correct_option === 2 ? 'selected' : ''}>C</option><option value="3" ${q.correct_option === 3 ? 'selected' : ''}>D</option></select><textarea id="qExplanation" rows="2">${escapeHtml(q.explanation || '')}</textarea><button class="btn-primary" onclick="updateQuestion(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`);
+            if (!q) { showToast('Question not found', 'error'); return; }
+            document.body.insertAdjacentHTML('beforeend', `<div class="modal active" id="quizModal"><div class="modal-content"><h2>Edit Question</h2><select id="qCategory">${['Road Signs','Highway Code','Defensive Driving','Traffic Rules'].map(c => `<option ${q.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select><textarea id="qText" rows="2" required>${escapeHtml(q.question)}</textarea><input type="text" id="optA" value="${escapeHtml(q.option_a)}" required><input type="text" id="optB" value="${escapeHtml(q.option_b)}" required><input type="text" id="optC" value="${escapeHtml(q.option_c)}" required><input type="text" id="optD" value="${escapeHtml(q.option_d)}" required><select id="correctOpt"><option value="0" ${q.correct_option === 0 ? 'selected' : ''}>A</option><option value="1" ${q.correct_option === 1 ? 'selected' : ''}>B</option><option value="2" ${q.correct_option === 2 ? 'selected' : ''}>C</option><option value="3" ${q.correct_option === 3 ? 'selected' : ''}>D</option></select><textarea id="qExplanation" rows="2">${escapeHtml(q.explanation || '')}</textarea><button class="btn-primary" onclick="updateQuestion(${id})">Update</button><button onclick="closeModal()">Cancel</button></div></div>`);
         };
         window.updateQuestion = async (id) => {
-            await supabase.from('quiz_questions').update({
-                category: document.getElementById('qCategory').value,
-                question: document.getElementById('qText').value,
-                option_a: document.getElementById('optA').value,
-                option_b: document.getElementById('optB').value,
-                option_c: document.getElementById('optC').value,
-                option_d: document.getElementById('optD').value,
-                correct_option: parseInt(document.getElementById('correctOpt').value),
-                explanation: document.getElementById('qExplanation').value
-            }).eq('id', id);
-            showToast('Question updated', 'success');
-            closeModal();
-            await loadData();
-            renderDashboard();
-        };
-        window.deleteQuestion = async (id) => {
-            if (confirm('Delete question?')) {
-                await supabase.from('quiz_questions').delete().eq('id', id);
-                showToast('Deleted', 'success');
+            const question = document.getElementById('qText').value.trim();
+            if (!question) { showToast('Please enter a question', 'error'); return; }
+            try {
+                await supabase.from('quiz_questions').update({
+                    category: document.getElementById('qCategory').value,
+                    question: question,
+                    option_a: document.getElementById('optA').value.trim(),
+                    option_b: document.getElementById('optB').value.trim(),
+                    option_c: document.getElementById('optC').value.trim(),
+                    option_d: document.getElementById('optD').value.trim(),
+                    correct_option: parseInt(document.getElementById('correctOpt').value),
+                    explanation: document.getElementById('qExplanation').value.trim() || null
+                }).eq('id', id);
+                showToast('Question updated successfully', 'success');
+                closeModal();
                 await loadData();
                 renderDashboard();
+            } catch (error) {
+                showToast('Error updating question: ' + error.message, 'error');
+            }
+        };
+        window.deleteQuestion = async (id) => {
+            if (confirm('Delete this question?')) {
+                try {
+                    await supabase.from('quiz_questions').delete().eq('id', id);
+                    showToast('Question deleted', 'success');
+                    await loadData();
+                    renderDashboard();
+                } catch (error) {
+                    showToast('Error deleting question: ' + error.message, 'error');
+                }
             }
         };
 
         window.closeModal = () => { document.querySelectorAll('.modal').forEach(m => m.remove()); };
-        window.logout = async () => { await supabase.auth.signOut();
-            window.location.href = 'admin-login.html'; };
+        window.logout = async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'admin-login.html';
+        };
+
+        // Handle unauthenticated access
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            return true;
+        }
 
         // start
-        init();
+        checkAuth().then(authenticated => {
+            if (authenticated) {
+                init();
+            }
+        });
     </script>
 </body>
 </html>
