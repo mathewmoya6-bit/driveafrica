@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>About Us | MEI DRIVE AFRICA</title>
+<meta name="description" content="MEI Drive Africa provides practical driver training and road-safety knowledge for learners, professional drivers and fleets across Africa." />
+<meta name="theme-color" content="#0a192f" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#00ff88;--border:rgba(0,255,136,.25);--text-muted:#a0b3d9;--card-bg:rgba(13,33,55,.85)}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0a192f 0%,#0d2137 50%,#0a192f 100%);background-attachment:fixed;color:#fff;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.navbar{position:fixed;top:0;width:100%;background:rgba(10,25,47,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:1000;padding:.8rem 2rem}
+.nav-container{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.logo{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),#00cc66);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a192f;box-shadow:0 4px 12px rgba(0,255,136,.3)}
+.logo span span{color:var(--primary)}
+.nav-links{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.nav-links a{color:var(--text-muted);padding:8px 14px;border-radius:50px;font-weight:500;font-size:.9rem;transition:.2s}
+.nav-links a:hover,.nav-links a.active{background:rgba(0,255,136,.1);color:var(--primary)}
+.mobile-menu{display:none;font-size:1.5rem;cursor:pointer;color:var(--primary);background:none;border:none}
+.btn{padding:10px 24px;border-radius:50px;font-weight:700;cursor:pointer;border:none;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--primary),#00cc66);color:#0a192f}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,255,136,.3)}
+.btn-outline{border:1px solid var(--primary);color:var(--primary);background:transparent}
+.btn-outline:hover{background:rgba(0,255,136,.1)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.hero{text-align:center;padding:130px 20px 40px}
+.hero h1{font-size:3rem;line-height:1.2;margin-bottom:1rem}
+.hero h1 span{color:var(--primary)}
+.hero p{color:var(--text-muted);max-width:680px;margin:0 auto 1.5rem;font-size:1.1rem}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.section-title{text-align:center;font-size:1.8rem;margin:2.5rem 0 1.5rem}
+.section-title span{color:var(--primary)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin:1rem 0 2rem}
+.card{background:var(--card-bg);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:20px;padding:1.5rem}
+.card i{font-size:1.8rem;color:var(--primary);margin-bottom:.6rem}
+.card h3{font-size:1.15rem;margin-bottom:.5rem}
+.card p{color:var(--text-muted);font-size:.92rem}
+.story{background:var(--card-bg);border:1px solid var(--primary);border-radius:20px;padding:2rem;max-width:860px;margin:0 auto}
+.story p{color:#d3def5;margin-bottom:.9rem}
+.story p:last-child{margin-bottom:0}
+.values{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1rem}
+.pill{background:rgba(0,255,136,.12);border:1px solid var(--border);color:var(--primary);padding:6px 16px;border-radius:50px;font-size:.85rem;font-weight:600}
+.cta{text-align:center;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:2.5rem 1.5rem;margin:2.5rem 0}
+.cta h2{font-size:1.8rem;margin-bottom:.5rem}
+.cta p{color:var(--text-muted);max-width:600px;margin:0 auto 1.2rem}
+footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);margin-top:3rem}
+@media(max-width:768px){
+.hero h1{font-size:2rem}
+.mobile-menu{display:block}
+.nav-links{display:none;width:100%;flex-direction:column;padding:1rem 0}
+.nav-links.show{display:flex}
+.story{padding:1.5rem}
+}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="nav-container">
+<a class="logo" href="index.html"><div class="logo-icon">M</div><span>MEI DRIVE <span>AFRICA</span></span></a>
+<button class="mobile-menu" aria-label="Menu" onclick="document.getElementById('nl').classList.toggle('show')"><i class="fas fa-bars"></i></button>
+<div class="nav-links" id="nl">
+<a href="index.html"><i class="fas fa-home"></i> Home</a>
+<a href="about.html" class="active"><i class="fas fa-circle-info"></i> About Us</a>
+<a href="journal.html"><i class="fas fa-book-open"></i> Road Journal</a>
+</div></div></nav>
+
+<header class="hero">
+<h1>About <span>MEI Drive Africa</span></h1>
+<p>We turn driving knowledge into real driving skills, for first-time learners, everyday motorists, professional drivers and fleets across Africa.</p>
+</header>
+
+<main class="container">
+<div class="story">
+<p>Good driving is more than controlling a vehicle. It involves observation, anticipation, patience, knowledge, judgement and respect for other road users.</p>
+<p>MEI Drive Africa offers structured driver training and exam preparation, alongside the Road Journal, our library of practical articles on road safety, vehicle knowledge and everyday driving in Kenya.</p>
+<p>Whether you are preparing for your first lesson, working as a professional driver or learning about electric vehicles, our goal is to make useful information accessible and practical.</p>
+<div class="values">
+<span class="pill">Learn better</span><span class="pill">Drive safer</span><span class="pill">Keep moving</span>
+</div>
+</div>
+
+<h2 class="section-title">Who We <span>Help</span></h2>
+<div class="grid">
+<div class="card"><i class="fas fa-user-graduate"></i><h3>Learners</h3><p>Build a solid foundation with structured learning materials and exam practice.</p></div>
+<div class="card"><i class="fas fa-car"></i><h3>Motorists</h3><p>Refresh your knowledge, sharpen your skills and adapt to changing roads and vehicles.</p></div>
+<div class="card"><i class="fas fa-bus"></i><h3>Professional drivers</h3><p>Training for PSV, boda, school bus and van drivers who carry passengers every day.</p></div>
+<div class="card"><i class="fas fa-truck"></i><h3>Fleet operators</h3><p>Defensive driving and safety knowledge that protect people, vehicles and reputation.</p></div>
+</div>
+
+<h2 class="section-title">What We <span>Offer</span></h2>
+<div class="grid">
+<div class="card"><i class="fas fa-book"></i><h3>Learner Hub</h3><p>Essential driving and road-safety knowledge.</p></div>
+<div class="card"><i class="fas fa-bolt"></i><h3>EV Driver Training</h3><p>Electric-vehicle operation, safety and efficient driving.</p></div>
+<div class="card"><i class="fas fa-shield-halved"></i><h3>Defensive Driving</h3><p>Hazard awareness, anticipation and risk management.</p></div>
+<div class="card"><i class="fas fa-rotate"></i><h3>Refresher Training</h3><p>Reinforce safe habits and update your knowledge.</p></div>
+<div class="card"><i class="fas fa-motorcycle"></i><h3>Boda Training</h3><p>Road-safety resources built around motorcycle riders.</p></div>
+<div class="card"><i class="fas fa-van-shuttle"></i><h3>School Bus &amp; Van</h3><p>Knowledge for drivers transporting learners and passengers.</p></div>
+</div>
+
+<div class="cta">
+<h2>Ready to start learning?</h2>
+<p>Browse our courses or read the Road Journal for practical driving advice.</p>
+<a class="btn btn-primary" href="index.html#courses-section"><i class="fas fa-graduation-cap"></i> View courses</a>
+<a class="btn btn-outline" href="journal.html">Read the Road Journal</a>
+</div>
+</main>
+<footer>© 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive</footer>
+</body>
+</html>
