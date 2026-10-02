@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>The Road Journal | MEI DRIVE AFRICA</title>
+<meta name="description" content="Practical driving knowledge, road-safety information and vehicle guidance for learners, motorists and professional drivers across Africa." />
+<meta name="theme-color" content="#0a192f" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a192f' rx='20'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='%2300ff88' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#00ff88;--border:rgba(0,255,136,.25);--text-muted:#a0b3d9;--card-bg:rgba(13,33,55,.85)}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0a192f 0%,#0d2137 50%,#0a192f 100%);background-attachment:fixed;color:#fff;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.navbar{position:fixed;top:0;width:100%;background:rgba(10,25,47,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);z-index:1000;padding:.8rem 2rem}
+.nav-container{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.logo{font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),#00cc66);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a192f;box-shadow:0 4px 12px rgba(0,255,136,.3)}
+.logo span span{color:var(--primary)}
+.nav-links{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.nav-links a{color:var(--text-muted);padding:8px 14px;border-radius:50px;font-weight:500;font-size:.9rem;transition:.2s}
+.nav-links a:hover,.nav-links a.active{background:rgba(0,255,136,.1);color:var(--primary)}
+.mobile-menu{display:none;font-size:1.5rem;cursor:pointer;color:var(--primary);background:none;border:none}
+.btn{padding:10px 24px;border-radius:50px;font-weight:700;cursor:pointer;border:none;transition:.2s;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--primary),#00cc66);color:#0a192f}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,255,136,.3)}
+.btn-outline{border:1px solid var(--primary);color:var(--primary);background:transparent}
+.btn-outline:hover{background:rgba(0,255,136,.1)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.hero{text-align:center;padding:130px 20px 40px}
+.hero h1{font-size:3rem;line-height:1.2;margin-bottom:1rem}
+.hero h1 span{color:var(--primary)}
+.hero p{color:var(--text-muted);max-width:640px;margin:0 auto 1.5rem;font-size:1.1rem}
+.container{max-width:1400px;margin:0 auto;padding:0 24px}
+.topics{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:0 auto 1rem;max-width:900px}
+.chip{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:6px 14px;border-radius:50px;font-size:.8rem;cursor:pointer;font-family:inherit;transition:.2s}
+.chip:hover,.chip.on{background:rgba(0,255,136,.12);color:var(--primary);border-color:var(--primary)}
+.section-title{text-align:center;font-size:1.8rem;margin:2.5rem 0 1.5rem}
+.section-title span{color:var(--primary)}
+.featured{background:var(--card-bg);border:1px solid var(--primary);border-radius:20px;padding:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;cursor:pointer;margin-top:1rem}
+.featured h2{font-size:2rem;line-height:1.25;margin:.5rem 0 1rem}
+.featured p{color:var(--text-muted);margin-bottom:1.2rem}
+.feat-art{aspect-ratio:16/10;border-radius:16px;background:radial-gradient(circle at 30% 30%,rgba(0,255,136,.25),transparent 60%),#0f1a2c;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:4.5rem;color:var(--primary)}
+.meta{color:var(--text-muted);font-size:.8rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tag{background:rgba(0,255,136,.2);color:var(--primary);font-size:.7rem;padding:4px 10px;border-radius:50px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;margin:1rem 0 2rem}
+.card{background:var(--card-bg);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:20px;padding:1.5rem;transition:.2s;cursor:pointer;display:flex;flex-direction:column;text-align:left;color:inherit;font-family:inherit}
+.card:hover{border-color:var(--primary);transform:translateY(-3px)}
+.card i{font-size:1.8rem;color:var(--primary);margin-bottom:.6rem}
+.card h3{font-size:1.15rem;margin:.6rem 0 .5rem;line-height:1.35}
+.card p{color:var(--text-muted);font-size:.9rem;flex:1;margin-bottom:.8rem}
+.more{color:var(--primary);font-weight:600;font-size:.85rem}
+.courses .card{cursor:default}
+.courses .card:hover{transform:none}
+.courses .card a{margin-top:.3rem;align-self:flex-start}
+.cta{text-align:center;background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:2.5rem 1.5rem;margin:2rem 0}
+.cta h2{font-size:1.8rem;margin-bottom:.5rem}
+.cta p{color:var(--text-muted);max-width:640px;margin:0 auto 1.2rem}
+footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:var(--text-muted);margin-top:3rem}
+.reader{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);z-index:2000;display:none;overflow-y:auto;padding:5rem 1rem 2rem}
+.reader.open{display:block}
+.article{background:#0d2137;border:1px solid var(--primary);border-radius:28px;max-width:760px;margin:0 auto;padding:2.2rem;position:relative}
+.article .x{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;color:var(--text-muted);font-size:1.3rem;cursor:pointer}
+.article .x:hover{color:var(--primary)}
+.article h2{font-size:1.9rem;line-height:1.25;margin:.8rem 0 1rem}
+.article h3{color:var(--primary);font-size:1.1rem;margin:1.5rem 0 .5rem}
+.article p{color:#d3def5;margin-bottom:.8rem}
+.article ul{margin:0 0 .8rem 1.2rem;color:#d3def5}
+.article li{margin-bottom:.25rem}
+.tw{overflow-x:auto;margin:.5rem 0 1rem}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.88rem}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:rgba(0,255,136,.12);color:var(--primary)}
+@media(max-width:768px){
+.hero h1{font-size:2rem}
+.mobile-menu{display:block}
+.nav-links{display:none;width:100%;flex-direction:column;padding:1rem 0}
+.nav-links.show{display:flex}
+.grid{grid-template-columns:1fr}
+.featured{grid-template-columns:1fr;padding:1.5rem}
+.article{padding:1.5rem}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<nav class="navbar"><div class="nav-container">
+<a class="logo" href="index.html"><div class="logo-icon">M</div><span>MEI DRIVE <span>AFRICA</span></span></a>
+<button class="mobile-menu" aria-label="Menu" onclick="document.getElementById('nl').classList.toggle('show')"><i class="fas fa-bars"></i></button>
+<div class="nav-links" id="nl">
+<a href="index.html"><i class="fas fa-home"></i> Home</a>
+<a href="index.html#courses-section"><i class="fas fa-graduation-cap"></i> Courses</a>
+<a href="journal.html" class="active"><i class="fas fa-book-open"></i> Road Journal</a>
+</div></div></nav>
+
+<header class="hero">
+<h1>The Road Journal<br><span>Learn better. Drive safer. Keep moving.</span></h1>
+<p>Practical driving knowledge, road-safety information and vehicle guidance for learners, motorists, professional drivers and fleet operators across Africa.</p>
+<div class="topics" id="topics"></div>
+</header>
+
+<main class="container">
+<div id="featured"></div>
+<h2 class="section-title">Latest <span>Articles</span></h2>
+<div class="grid" id="grid"></div>
+
+<h2 class="section-title">Turn Knowledge Into <span>Driving Skills</span></h2>
+<p style="text-align:center;color:var(--text-muted);max-width:640px;margin:-.8rem auto 1rem">The Road Journal supports your learning, but structured training and practical experience remain essential parts of driver development.</p>
+<div class="grid courses" id="courses"></div>
+
+<div class="cta">
+<h2>One useful driving idea, every month.</h2>
+<p>From your first driving lesson to professional driver development, from petrol vehicles to electric vehicles, we make useful information accessible and practical.</p>
+<a class="btn btn-primary" href="index.html#courses-section"><i class="fas fa-rocket"></i> Start learning today</a>
+<a class="btn btn-outline" href="index.html">Explore MEI Drive Africa</a>
+</div>
+</main>
+<footer>© 2026 MEI DRIVE AFRICA | Drive Safe, Arrive Alive</footer>
+
+<div class="reader" id="reader" onclick="if(event.target===this)closeA()"><div class="article" id="art" role="dialog" aria-modal="true"></div></div>
+
+<script>
+const A=[
+{id:0,f:1,c:'Learner Confidence',i:'fa-car',t:'Your First Driving Lesson: What Actually Happens?',m:'10 min read',d:'12 October 2026',s:'Your first lesson is about familiarity with the vehicle and the start of safe habits, not perfection.',
+b:[['',"Starting your first driving lesson can feel exciting, unfamiliar and even intimidating. Knowing what to expect makes it easier. Your first lesson is not about becoming a perfect driver in one session. It is about becoming familiar with the vehicle, understanding basic controls and beginning to develop safe driving habits."],
+['What happens during a first lesson?',["Steering wheel, accelerator, brake and clutch","Gear selector and parking brake","Indicators, mirrors, lights and windscreen controls","Dashboard warning indicators"],"Your instructor will introduce the vehicle and explain its main controls, then show you how to adjust your seat and mirrors for a comfortable, appropriate driving position."],
+['Building vehicle control',["Starting the vehicle and moving away safely","Steering, braking and stopping","Changing direction","Using mirrors and signalling","Maintaining appropriate speed"],"Control develops progressively. Manual learners also practise clutch control and gear selection; automatic and electric learners get to know the specific controls and characteristics of those vehicles."],
+['Confidence takes practice',"Feeling nervous is normal. Safe confidence develops through knowledge, supervised practice and repeated exposure to different driving situations. The goal is not simply to control a vehicle, but to develop the skills and judgement to use the road responsibly."]]},
+{id:1,c:'Road Skills',i:'fa-road',t:'How to Stay Calm in Busy Nairobi Traffic',m:'7 min read',d:'06 October 2026',s:'Look further ahead, keep your space and decide early to stay composed when traffic changes fast.',
+b:[['',"A quiet road can become congested within minutes, while pedestrians, motorcycles, buses and trucks create a constantly changing environment. Staying calm and focused is part of safe driving."],
+['Look ahead',["Traffic slowing ahead","Pedestrians approaching the road","Vehicles changing lanes","Motorcycles filtering through traffic","Roadworks, junctions and stopped vehicles","Changing traffic signals"],"Don't concentrate only on the vehicle directly in front. Looking further ahead helps you spot developing situations early."],
+['Maintain space',"Space gives you more time to respond. Avoid following so closely that you have little room to brake if the vehicle ahead stops suddenly."],
+['Avoid unnecessary manoeuvres',"Frequent lane changes don't necessarily get you there faster. Before changing lanes, ask whether it is necessary and whether you have space to do it safely."],
+['Make decisions early',"Good observation lets you decide before a situation becomes urgent. Signal in good time, check your surroundings and make deliberate manoeuvres."],
+['Stay patient',"Aggressive driving increases risk. A few extra minutes on a journey matter less than arriving safely."]]},
+{id:2,c:'Learner Guide',i:'fa-gears',t:'Manual or Automatic: Which Course Is Right for You?',m:'7 min read',d:'28 September 2026',s:'Compare manual, automatic and electric learning so you can choose what fits your needs.',
+b:[['',"Both manual and automatic training require proper instruction, observation and responsible driving."],
+['Manual vehicles',["Clutch control and gear selection","Moving away and stopping","Hill starts and downshifting","Engine-speed management"],"The driver coordinates clutch, accelerator and gears, which can take significant coordination and practice."],
+['Automatic vehicles',["Steering and observation","Traffic and braking","Speed management and road positioning"],"Gears are selected without a conventional clutch, so learners can concentrate more directly on these skills. Proper training is still required."],
+['Electric vehicles',"Many EVs provide immediate motor response and use regenerative braking to recover some energy as the vehicle slows. Understand the controls and behaviour before driving independently."],
+['Which should you choose?',["The vehicles you expect to drive","Your personal circumstances and future driving needs","Availability of vehicles","Professional driving requirements","Your preferred learning environment"],"The important objective is safe, competent and responsible driving."]]},
+{id:3,c:'Safety',i:'fa-shield-halved',t:'The Five Checks Every Driver Should Make Before Moving',m:'6 min read',d:'12 September 2026',s:'A consistent pre-drive routine helps you spot problems and prepare for the road.',
+b:[['',"A safe journey begins before the vehicle moves."],
+['1. Check around the vehicle',"Look for pedestrians, children, motorcycles, bicycles, obstacles and other vehicles."],
+['2. Check your mirrors',"Adjust them correctly and use them regularly. Mirrors don't eliminate blind spots, so understand the limits of your visibility."],
+['3. Check your driving position',["Seat position","Head restraint","Steering position","Mirrors"],"You should reach the controls comfortably and keep good visibility."],
+['4. Check seat belts',"Everyone in the vehicle should use the appropriate seat belt or restraint."],
+['5. Check the road environment',["Traffic, weather and visibility","Road surface and pedestrians","Junctions and your intended direction"],"A few seconds of preparation can make a significant difference."]]},
+{id:4,c:'Professional Driving',i:'fa-truck',t:'Why Defensive Driving Matters for Company Fleets',m:'8 min read',d:'30 August 2026',s:'Fleet incidents affect people, vehicles, schedules, costs and reputation. Defensive driving reduces risk.',
+b:[['',"Driver safety affects much more than the individual behind the wheel. Fleet incidents can affect employees, customers, vehicles, schedules, operating costs and business reputation."],
+['What is defensive driving?',["Observation and hazard identification","Speed management and safe following distance","Overtaking decisions and lane discipline","Fatigue, vehicle and weather awareness","Emergency response"],"It means anticipating hazards and making decisions that reduce unnecessary risk."],
+['Fleet managers also have a role',["Driver training and refresher courses","Vehicle inspections and maintenance programmes","Driver monitoring and incident reporting","Fatigue-management procedures and safety policies"],"Professional driving is about operating responsibly while protecting people, vehicles and other road users."]]},
+{id:5,c:'EV & Fuel Vehicles',i:'fa-bolt',t:'Electric or Fuel Vehicle: Understanding the Difference',m:'8 min read',d:'',s:'How electric and petrol or diesel vehicles differ in energy, driving feel, planning and maintenance.',
+b:[['',"Electric vehicles are increasingly visible on African roads, while petrol and diesel vehicles remain widely used for private, commercial and professional transport."],
+['Electric vehicles',["Smooth acceleration and quiet operation","Immediate motor response","Regenerative braking","Different energy-management needs"],"EVs use electric motors powered by rechargeable batteries. Understand how your vehicle behaves before driving independently."],
+['EV charging',["Charging locations and times","Appropriate charging equipment","Battery level and charging indicators","Safe charging practices"],"Planning is particularly important on longer journeys."],
+['Petrol and diesel vehicles',["Fuel management and engine temperature","Engine oil, coolant and brake fluid","Tyres, lights and warning indicators","Routine servicing"],"These use internal-combustion engines. Never ignore dashboard warning lights or unusual vehicle behaviour."],
+['EV versus fuel vehicles',[['Area','Electric','Petrol/Diesel'],['Energy source','Electricity','Petrol or diesel'],['Propulsion','Electric motor','Internal-combustion engine'],['Replenishment','Charging','Refuelling'],['Engine oil','Not used by the motor in the same way','Required for conventional engines'],['Regenerative braking','Common feature','Generally not available in the same form'],['Driving feel','Smooth and quiet','Engine sound, conventional transmission'],['Journey planning','Battery level and charging availability','Fuel level and availability'],['Maintenance','Different requirements','Conventional engine and mechanical servicing']],"Both vehicle types require responsible driving. A different powertrain does not remove the need for observation, speed control, hazard awareness and safe decisions."]]},
+{id:6,c:'Vehicle Knowledge',i:'fa-screwdriver-wrench',t:'What Every Driver Should Know About Basic Vehicle Checks',m:'6 min read',d:'',s:'You don\'t need to be a mechanic to check tyres, lights, fluids and warning indicators.',
+b:[['',"Before driving, become familiar with your vehicle's condition and recognise signs that need professional attention."],
+['Tyres',["Visible damage","Appropriate inflation","Excessive wear","Foreign objects"]],
+['Lights',["Headlights and brake lights","Indicators and hazard lights","Reversing lights"]],
+['Fluids',["Engine oil","Coolant","Brake fluid","Windscreen-washer fluid"],"EVs have different maintenance needs, but you should still understand the warning systems and recommended inspection schedule."],
+['Warning indicators',"Don't ignore warning lights. If one appears, consult the vehicle manual or a qualified technician."]]},
+{id:7,c:'Driver Development',i:'fa-user-graduate',t:"Building Safer Drivers for Kenya's Roads",m:'6 min read',d:'',s:'A licence is a milestone, not the finish line. Keep learning to keep improving.',
+b:[['',"Driving skills continue to develop through experience, training and responsible practice."],
+['Continuous learning',["Refresher training","Defensive-driving courses","EV training","Professional-driver training","Road-safety education"]],
+['Learn from experience',["Heavy traffic and congested junctions","Night driving, rain and poor visibility","Rural, urban and high-speed roads","Long-distance journeys"],"Each environment requires appropriate judgement."],
+['Keep improving',"Experience alone doesn't guarantee safety. Continuous learning helps you identify weaknesses, reinforce good habits and adapt to changing vehicles and roads."]]},
+{id:8,c:'Road Safety',i:'fa-person-walking',t:'Sharing the Road With Motorcycles, Bicycles and Pedestrians',m:'7 min read',d:'',s:'Give vulnerable road users space and expect them to move in unexpected ways.',
+b:[['',"Kenya's roads are shared by pedestrians, cyclists, motorcycles, public transport, trucks and more."],
+['Give vulnerable road users space',"When passing cyclists or motorcycles, allow appropriate space and avoid sudden movements."],
+['Watch for pedestrians',["Schools and markets","Bus stops and residential areas","Shopping centres and junctions"],"Pedestrians may enter or cross roads at different points."],
+['Expect movement',"A motorcycle moves differently from a car, a pedestrian may change direction and a cyclist may need to avoid an obstacle. Good observation helps you anticipate these possibilities."]]},
+{id:9,c:'Professional Drivers',i:'fa-clipboard-check',t:"The Professional Driver's Daily Safety Routine",m:'7 min read',d:'',s:'A consistent routine before, during and after each journey builds good safety habits.',
+b:[['',"Professional drivers spend many hours on the road, often in demanding conditions."],
+['Before the journey',["Vehicle condition, tyres, lights and mirrors","Fuel or battery level","Required documents and route","Weather, rest and fatigue"]],
+['During the journey',["Speed and following distance","Traffic and road conditions","Driver fatigue and vehicle behaviour"]],
+['After the journey',["Vehicle issues and incidents","Maintenance concerns","Fuel or energy use and other operational information"],"Professional driving requires consistency."]]},
+{id:10,c:'Everyday Driving',i:'fa-gauge-high',t:'How to Build Confidence Behind the Wheel',m:'6 min read',d:'',s:'Confidence comes from preparation and practice, not from unnecessary risks.',
+b:[['',"Learners and newer drivers can build confidence by gradually developing steering control, braking, observation, mirror use, signalling, lane positioning, speed control, hazard awareness and decision-making."],
+['Take your time',"There is no need to master every driving situation immediately. Progressive training builds skills in manageable stages."],
+['Ask questions',"A good instructor can explain why a technique is used. Understanding the reason makes it easier to apply consistently."],
+['Practise responsibly',"Confidence develops through supervised practice, repetition and exposure to different driving environments."]]},
+{id:11,c:'Road Safety',i:'fa-arrows-left-right',t:'Understanding Safe Following Distance',m:'5 min read',d:'',s:'Following too closely cuts the time you have to respond when the vehicle ahead slows or stops.',
+b:[['',"A safe following distance should take into account:"],
+['',["Vehicle speed","Traffic conditions and weather","Road surface and visibility","Vehicle condition"],"Wet roads, poor visibility and other challenging conditions call for greater caution. The objective is enough space to respond safely to changing conditions."]]},
+{id:12,c:'Vehicle Technology',i:'fa-triangle-exclamation',t:"Understanding Your Vehicle's Warning Lights",m:'6 min read',d:'',s:'Dashboard lights and displays tell you about engine, brakes, battery, tyres and more.',
+b:[['',"Depending on the vehicle, warning lights may indicate issues involving:"],
+['',["Engine and braking systems","Battery and charging","Tyre pressure and temperature","Safety systems"],"Learn the meaning of the indicators in your particular vehicle. Always refer to the manufacturer's instructions and seek qualified help when necessary."]]},
+{id:13,c:'EV Driving',i:'fa-charging-station',t:'How to Drive an Electric Vehicle Efficiently',m:'7 min read',d:'',s:'Familiar driving principles plus battery, regeneration and charging know-how.',
+b:[['',"Drivers can learn how to:"],
+['',["Monitor battery level","Understand regenerative braking","Plan charging and manage energy use","Adapt to different driving conditions","Understand range information","Respond to charging or battery warnings"],"Efficient driving should never mean compromising safety. Safe speed, appropriate following distance and proper observation remain essential."]]},
+{id:14,c:'Road Safety',i:'fa-moon',t:'Safe Driving at Night',m:'7 min read',d:'',s:'Recognise the limits of night-time visibility and adjust how you drive.',
+b:[['',"Night driving presents different visibility conditions from daytime. Consider:"],
+['',["Reduced visibility and headlight glare","Pedestrians who are difficult to see","Motorcycles and bicycles","Road markings and fatigue"],"Use appropriate lighting and reduce speed when conditions require greater caution. Good night driving begins with recognising the limitations of visibility."]]}
+];
+const C=[['fa-book','Learner Hub','Build your foundation with structured learning materials covering essential driving and road-safety knowledge.'],['fa-bus','PSV Driver Training','Develop knowledge and skills relevant to professional passenger-service driving.'],['fa-bolt','EV Driver Training','Learn the fundamentals of electric-vehicle operation, safety and efficient driving.'],['fa-shield-halved','Defensive Driving','Develop stronger hazard awareness, anticipation and risk-management skills.'],['fa-rotate','Refresher Training','Refresh your knowledge and reinforce safe driving habits.'],['fa-motorcycle','Boda Training','Training resources designed around motorcycle riders and road safety.'],['fa-van-shuttle','School Bus & Van Driver Training','Knowledge for drivers responsible for transporting learners and passengers.']];
+const $=id=>document.getElementById(id);
+let filter='All';
+function meta(a){return `<div class="meta"><span class="tag">${a.c}</span><span>${a.m}</span>${a.d?`<span>${a.d}</span>`:''}</div>`}
+function render(){
+ const cats=['All',...new Set(A.map(a=>a.c))];
+ $('topics').innerHTML=cats.map(c=>`<button class="chip ${c===filter?'on':''}" onclick="setF('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('');
+ const f=A.find(a=>a.f);
+ $('featured').innerHTML=filter==='All'?`<div class="featured" onclick="openA(${f.id})"><div><div class="meta"><span class="tag">Featured</span><span>${f.m}</span><span>${f.d}</span></div><h2>${f.t}</h2><p>${f.s}</p><button class="btn btn-primary">Read the story <i class="fas fa-arrow-right"></i></button></div><div class="feat-art"><i class="fas fa-car-side"></i></div></div>`:'';
+ const list=A.filter(a=>!(a.f&&filter==='All')&&(filter==='All'||a.c===filter));
+ $('grid').innerHTML=list.map(a=>`<button class="card" onclick="openA(${a.id})"><i class="fas ${a.i}"></i>${meta(a)}<h3>${a.t}</h3><p>${a.s}</p><span class="more">Read article <i class="fas fa-arrow-right"></i></span></button>`).join('');
+}
+function setF(c){filter=c;render()}
+function openA(id){
+ const a=A.find(x=>x.id===id);
+ let h=`<button class="x" aria-label="Close" onclick="closeA()"><i class="fas fa-times"></i></button>${meta(a)}<h2>${a.t}</h2>`;
+ a.b.forEach(([hd,...rest])=>{
+  if(hd)h+=`<h3>${hd}</h3>`;
+  rest.forEach(r=>{
+   if(typeof r==='string')h+=`<p>${r}</p>`;
+   else if(Array.isArray(r[0])){const[t,...rows]=r;h+=`<div class="tw"><table><thead><tr>${t.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(w=>`<tr>${w.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+   else h+=`<ul>${r.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  });
+ });
+ h+=`<div style="margin-top:1.5rem"><a class="btn btn-primary" href="index.html#courses-section"><i class="fas fa-graduation-cap"></i> Explore courses</a></div>`;
+ $('art').innerHTML=h;$('reader').classList.add('open');$('reader').scrollTop=0;document.body.style.overflow='hidden';
+}
+function closeA(){$('reader').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeA()});
+$('courses').innerHTML=C.map(c=>`<div class="card"><i class="fas ${c[0]}"></i><h3>${c[1]}</h3><p>${c[2]}</p><a class="btn btn-outline" href="index.html#courses-section">Explore course</a></div>`).join('');
+render();
+</script>
+</body>
+</html>
